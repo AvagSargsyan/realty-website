@@ -26,6 +26,11 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(dirname),
   },
+  // Only production may be indexed: staging and local send `noindex` on every response
+  async headers() {
+    if (process.env.VERCEL_ENV === 'production') return []
+    return [{ source: '/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] }]
+  },
 }
 
 export default withPayload(nextConfig, { devBundleServerPackages: false })
