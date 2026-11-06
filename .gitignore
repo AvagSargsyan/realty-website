@@ -1,0 +1,20 @@
+# Local planning notes (not published)
+/.claude/
+
+# Dependencies and builds
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Env files (keep .env.example)
+.env*
+!.env.example
+
+# Misc
+.DS_Store
+*.log
+.vercel
+*.tsbuildinfo
+next-env.d.ts
