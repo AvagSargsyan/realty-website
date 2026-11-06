@@ -15,8 +15,18 @@ import { Users } from './collections/Users'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+/** Public URL: set by hand locally; on Vercel it comes from the system variables. */
+function serverURL() {
+  if (process.env.NEXT_PUBLIC_SERVER_URL) return process.env.NEXT_PUBLIC_SERVER_URL
+  const host =
+    process.env.VERCEL_ENV === 'production'
+      ? process.env.VERCEL_PROJECT_PRODUCTION_URL
+      : process.env.VERCEL_BRANCH_URL || process.env.VERCEL_URL
+  return host ? `https://${host}` : ''
+}
+
 export default buildConfig({
-  serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
+  serverURL: serverURL(),
   admin: {
     user: Users.slug,
     importMap: {
