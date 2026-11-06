@@ -1,20 +1,44 @@
-# Local planning notes (not published)
+# Local planning notes and agent files (never published)
 /.claude/
+/CLAUDE.md
+/AGENTS.md
 
-# Dependencies and builds
-node_modules/
-.next/
-out/
-build/
-dist/
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
 
-# Env files (keep .env.example)
+# Next.js and builds
+/.next/
+/out/
+/build
+*.tsbuildinfo
+next-env.d.ts
+
+# Env files (only the example is committed)
+.env
 .env*
 !.env.example
 
-# Misc
-.DS_Store
-*.log
+# Local uploads when Blob storage is off
+/media
+
+# Vercel
 .vercel
-*.tsbuildinfo
-next-env.d.ts
+
+# Testing
+/coverage
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Editors and OS
+/.idea/*
+.DS_Store
+*.pem
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
