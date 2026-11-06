@@ -33,7 +33,7 @@ The first visit to `/admin` asks you to create the first admin user.
 
 - `main`: production (Vercel production deployment)
 - `develop`: staging (Vercel preview of the `develop` branch)
-- `feature/*`, `fix/*`: work branches, merged into `develop` by pull request
+- No other branches: work is committed straight to `develop`, and `develop` is merged into `main` to release.
 
 ## Environment variables
 
