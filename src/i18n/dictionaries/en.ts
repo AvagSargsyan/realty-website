@@ -269,8 +269,8 @@ const en = {
   },
   info: {
     about: { title: "About Avenue", body: ["Avenue Real Estate Agency helps people buy, sell and rent property in Yerevan and the towns nearby.", "Our agents know every district, check each listing before it goes live and stay with you until the deal is done."] },
-    privacy: { title: "Privacy policy", body: ["This is a demo website: its forms don’t send or store any of your data.", "The full privacy policy will be published with the real website."] },
-    terms: { title: "Terms of use", body: ["This is a demo website with sample listings, prices and reviews.", "The full terms of use will be published with the real website."] },
+    privacy: { title: "Privacy policy", body: ["When you send a request or a message through this website, we store your name, phone number, email (if you give one) and message so that we can reply to you.", "We don’t share your details with anyone else, and you can ask us to delete them at any time.", "This website is a personal learning project: its listings, prices and reviews are samples."] },
+    terms: { title: "Terms of use", body: ["This website is a personal learning project. Its listings, prices and reviews are samples, not real offers.", "Prices in AMD and RUB are converted from US dollars for reference only."] },
   },
   notFound: { title: "Page not found", body: "The page you’re looking for doesn’t exist.", back: "Back to home" },
 }

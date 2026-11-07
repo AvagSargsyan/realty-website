@@ -2,6 +2,9 @@ import { test, expect, Page } from '@playwright/test'
 import { login } from '../helpers/login'
 import { seedTestUser, cleanupTestUser, testUser } from '../helpers/seedUser'
 
+// Admin pages can take a while on the dev server, especially while other tests run in parallel
+const ADMIN_TIMEOUT = 15_000
+
 test.describe('Admin Panel', () => {
   let page: Page
 
@@ -22,20 +25,21 @@ test.describe('Admin Panel', () => {
     await page.goto('http://localhost:3000/admin')
     await expect(page).toHaveURL('http://localhost:3000/admin')
     const dashboardArtifact = page.locator('span[title="Dashboard"]').first()
-    await expect(dashboardArtifact).toBeVisible()
+    await expect(dashboardArtifact).toBeVisible({ timeout: ADMIN_TIMEOUT })
   })
 
   test('can navigate to list view', async () => {
     await page.goto('http://localhost:3000/admin/collections/users')
-    await expect(page).toHaveURL('http://localhost:3000/admin/collections/users')
+    // Payload may add the saved list preferences (?limit=…&sort=…)
+    await expect(page).toHaveURL(/\/admin\/collections\/users(\?.*)?$/)
     const listViewArtifact = page.locator('h1', { hasText: 'Users' }).first()
-    await expect(listViewArtifact).toBeVisible()
+    await expect(listViewArtifact).toBeVisible({ timeout: ADMIN_TIMEOUT })
   })
 
   test('can navigate to edit view', async () => {
     await page.goto('http://localhost:3000/admin/collections/users/create')
     await expect(page).toHaveURL(/\/admin\/collections\/users\/[a-zA-Z0-9-_]+/)
     const editViewArtifact = page.locator('input[name="email"]')
-    await expect(editViewArtifact).toBeVisible()
+    await expect(editViewArtifact).toBeVisible({ timeout: ADMIN_TIMEOUT })
   })
 })
