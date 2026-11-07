@@ -103,6 +103,15 @@ export function PropertyView({ listing: l, similar, similarTotal }: { listing: L
           {/* Left column */}
           <div className="min-w-0">
             <motion.header initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+              {/* Sold and rented listings keep their page (left out of search), clearly marked */}
+              {l.status !== "published" && (
+                <p role="status" className="mb-4 flex flex-wrap items-center gap-3 rounded-md border border-line bg-surface px-4 py-3 text-sm text-ink">
+                  <span className="inline-flex h-6 items-center rounded-sm bg-night px-2 text-[0.68rem] font-bold tracking-[0.08em] text-white uppercase">
+                    {t.property.status[l.status]}
+                  </span>
+                  {t.property.status.note}
+                </p>
+              )}
               {l.tags.length > 0 && (
                 <div className="mb-3 flex flex-wrap gap-1.5">
                   {l.tags.map((tg) => <TagBadge key={tg} tag={tg} className="border border-line" />)}

@@ -190,6 +190,7 @@ const en = {
     whatsappText: (title: string, id: number) => `Hello! I’m interested in “${title}” (ID ${id}).`,
     agentNote: "Our agents answer every day from 10:00 to 19:00.",
     similar: "Similar properties",
+    status: { sold: "Sold", rented: "Rented", note: "This property is no longer available. See similar ones below." },
     notFound: { title: "Property not found", body: "This listing may have been sold or removed.", back: "Browse properties" },
   },
   form: {
