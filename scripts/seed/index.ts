@@ -35,7 +35,12 @@ if (seedEnv && (isLocal || !process.env.BLOB_READ_WRITE_TOKEN)) {
   process.exit(1)
 }
 
-// Imported after the env is final: the config reads DATABASE_URL and the Blob token on import
+// Never sync the schema of a shared database from here: that marks it as a dev database and
+// blocks `payload migrate` on every later deploy. Migrations alone shape staging and production.
+if (seedEnv) process.env.PAYLOAD_DB_PUSH = 'false'
+
+// Imported after the env is final: the config reads DATABASE_URL, the Blob token and
+// PAYLOAD_DB_PUSH on import
 const { default: config } = await import('@payload-config')
 const { getPayload } = await import('payload')
 const payload = await getPayload({ config })

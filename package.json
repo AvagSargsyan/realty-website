@@ -20,6 +20,7 @@
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
     "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/seed/index.ts",
     "seed:staging": "cross-env NODE_OPTIONS=--no-deprecation SEED_ENV=staging payload run scripts/seed/index.ts",
+    "db:clear-dev-mark:staging": "cross-env NODE_OPTIONS=--no-deprecation DB_ENV=staging payload run scripts/clear-dev-mark.ts",
     "typecheck": "next typegen && tsc --noEmit",
     "db:up": "docker compose up -d",
     "build:vercel": "cross-env NODE_OPTIONS=--no-deprecation payload migrate && pnpm run build"

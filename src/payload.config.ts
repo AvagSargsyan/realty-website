@@ -61,7 +61,11 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || '',
     },
     // Schema changes go through committed migrations (src/migrations).
-    // In development Payload still "pushes" changes automatically; production never does.
+    // In development Payload also "pushes" changes straight into the database and marks it as a
+    // dev database; `payload migrate` then refuses to run on it. That's fine for the local Docker
+    // database, never for staging or production: scripts that run against those (the seed) set
+    // PAYLOAD_DB_PUSH=false.
+    push: process.env.PAYLOAD_DB_PUSH === 'false' ? false : undefined,
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
   sharp,
