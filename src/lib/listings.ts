@@ -193,6 +193,32 @@ export const getListingIndex = unstable_cache(
   { tags: [LISTINGS_TAG], revalidate: 3600 },
 )
 
+/** One listing by its public code, with all photos. Published, sold and rented listings are visible. */
+export async function getPropertyByCode(locale: Lang, code: number): Promise<Listing | null> {
+  if (!Number.isInteger(code)) return null
+  const payload = await getClient()
+  const res = await payload.find({
+    collection: 'properties',
+    where: { code: { equals: code } },
+    locale,
+    fallbackLocale: 'hy',
+    depth: 1,
+    limit: 1,
+    overrideAccess: false, // visitors' access rules: drafts and archived listings stay hidden
+  })
+  return res.docs[0] ? toListing(res.docs[0]) : null
+}
+
+/** Same deal first, then same type, then same district (the demo's rule), newest first within a score. */
+export function similarCodes(rows: IndexRow[], l: Pick<Listing, 'id' | 'deal' | 'type' | 'district'>) {
+  return rows
+    .filter((x) => x.id !== l.id && x.deal === l.deal)
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    .map((x) => ({ x, score: (x.type === l.type ? 2 : 0) + (x.district === l.district.key ? 1 : 0) }))
+    .sort((a, b) => b.score - a.score)
+    .map((s) => s.x.id)
+}
+
 /** Full card data for the given public codes, in that order. */
 export async function findByCodes(locale: Lang, codes: number[]): Promise<Listing[]> {
   if (!codes.length) return []

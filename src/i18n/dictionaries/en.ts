@@ -205,7 +205,8 @@ const en = {
     send: "Send",
     successTitle: "Thank you!",
     successBody: "We’ve received your message and will call you back soon.",
-    demoNote: "Demo version: nothing is actually sent.",
+    demoNote: "We use your details only to reply to you.",
+    sendFailed: "Sorry, your message couldn’t be sent. Please try again or call us.",
     close: "Close",
   },
   request: {

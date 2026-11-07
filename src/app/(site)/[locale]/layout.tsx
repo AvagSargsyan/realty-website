@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/Footer'
 import { Header, HeaderWithSearch } from '@/components/layout/Header'
 import { SettingsProvider } from '@/components/providers/SettingsProvider'
 import { ThemeSync } from '@/components/providers/ThemeSync'
+import { ToastProvider } from '@/components/ui/toast'
 import { THEME_COLORS, THEME_SCRIPT } from '@/components/providers/preferences'
 import { LocaleProvider } from '@/i18n/client'
 import { isLocale, LOCALES } from '@/i18n/config'
@@ -43,16 +44,18 @@ export default async function SiteLayout({ children, params }: LayoutProps<'/[lo
       <body>
         <LocaleProvider locale={locale}>
           <SettingsProvider value={settings}>
-            <ThemeSync />
-            <div className="flex min-h-svh flex-col">
-              <Suspense fallback={<Header />}>
-                <HeaderWithSearch />
-              </Suspense>
-              <main id="main" className="flex-1">
-                {children}
-              </main>
-              <Footer />
-            </div>
+            <ToastProvider>
+              <ThemeSync />
+              <div className="flex min-h-svh flex-col">
+                <Suspense fallback={<Header />}>
+                  <HeaderWithSearch />
+                </Suspense>
+                <main id="main" className="flex-1">
+                  {children}
+                </main>
+                <Footer />
+              </div>
+            </ToastProvider>
           </SettingsProvider>
         </LocaleProvider>
       </body>

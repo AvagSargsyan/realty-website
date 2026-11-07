@@ -1,10 +1,9 @@
 import { defineConfig, devices } from '@playwright/test'
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-import 'dotenv/config'
+import { config as loadEnv } from 'dotenv'
+
+// Same files as Next.js: .env.local (your machine) first, then .env. Already-set variables win (e.g. CI).
+loadEnv({ path: ['.env.local', '.env'] })
 
 /**
  * See https://playwright.dev/docs/test-configuration.
