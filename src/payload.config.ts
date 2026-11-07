@@ -9,8 +9,13 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { Agents } from './collections/Agents'
+import { Districts } from './collections/Districts'
+import { Leads } from './collections/Leads'
 import { Media } from './collections/Media'
+import { Properties } from './collections/Properties'
 import { Users } from './collections/Users'
+import { SiteSettings } from './globals/SiteSettings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -28,7 +33,9 @@ export default buildConfig({
       titleSuffix: ' · Avenue admin',
     },
   },
-  collections: [Users, Media],
+  // Order = order in the admin sidebar
+  collections: [Properties, Districts, Agents, Media, Leads, Users],
+  globals: [SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

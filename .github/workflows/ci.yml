@@ -47,5 +47,7 @@ jobs:
         run: pnpm lint
       - name: Migrations apply cleanly
         run: pnpm migrate
+      - name: Integration tests (roles and listing rules)
+        run: pnpm test:int
       - name: Build
         run: pnpm build

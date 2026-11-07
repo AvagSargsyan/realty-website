@@ -67,8 +67,12 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
+    properties: Property;
+    districts: District;
+    agents: Agent;
     media: Media;
+    leads: Lead;
+    users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -76,8 +80,12 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
+    properties: PropertiesSelect<false> | PropertiesSelect<true>;
+    districts: DistrictsSelect<false> | DistrictsSelect<true>;
+    agents: AgentsSelect<false> | AgentsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    leads: LeadsSelect<false> | LeadsSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -87,8 +95,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('hy' | 'en' | 'ru') | ('hy' | 'en' | 'ru')[];
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+  };
   locale: 'hy' | 'en' | 'ru';
   widgets: {
     collections: CollectionsWidget;
@@ -119,31 +131,98 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
+ * via the `definition` "properties".
  */
-export interface User {
+export interface Property {
   id: number;
-  name?: string | null;
-  role: 'admin' | 'editor' | 'agent';
+  /**
+   * Assigned automatically
+   */
+  code?: number | null;
+  status: 'draft' | 'published' | 'sold' | 'rented' | 'archived';
+  agent?: (number | null) | Agent;
+  /**
+   * Made from the title if empty
+   */
+  slug?: string | null;
+  deal: 'sale' | 'rent';
+  type: 'apartment' | 'house' | 'commercial' | 'land';
+  tags?: ('exclusive' | 'new' | 'newConstruction' | 'penthouse')[] | null;
+  title: string;
+  district: number | District;
+  street?: string | null;
+  description?: string | null;
+  /**
+   * For rentals: per month. AMD and RUB are calculated from the rates in Site settings.
+   */
+  priceUsd: number;
+  /**
+   * Shows a “Price reduced” badge when higher than the price
+   */
+  oldPriceUsd?: number | null;
+  area: number;
+  rooms?: number | null;
+  bedrooms?: number | null;
+  bathrooms?: number | null;
+  floor?: number | null;
+  floors?: number | null;
+  ceiling?: number | null;
+  building?: ('stone' | 'panel' | 'monolith') | null;
+  condition?: ('renovated' | 'average' | 'zero') | null;
+  amenities?:
+    | (
+        | 'heating'
+        | 'gas'
+        | 'hotWater'
+        | 'aircon'
+        | 'furniture'
+        | 'appliances'
+        | 'balcony'
+        | 'elevator'
+        | 'parking'
+        | 'internet'
+        | 'security'
+        | 'view'
+        | 'garden'
+        | 'pool'
+        | 'fireplace'
+      )[]
+    | null;
+  /**
+   * Drag to reorder. The first photo is the cover.
+   */
+  photos?: (number | Media)[] | null;
+  seo?: {
+    /**
+     * Uses the listing title if empty
+     */
+    title?: string | null;
+    description?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  resetPasswordRequestedAt?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "agents".
+ */
+export interface Agent {
+  id: number;
+  name: string;
+  photo?: (number | null) | Media;
+  phone: string;
+  /**
+   * Digits only, with country code
+   */
+  whatsapp?: string | null;
+  email?: string | null;
+  languages?: ('hy' | 'en' | 'ru')[] | null;
+  /**
+   * A user with the agent role who can edit this agent’s listings.
+   */
+  user?: (number | null) | User;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -151,6 +230,9 @@ export interface User {
  */
 export interface Media {
   id: number;
+  /**
+   * What the photo shows, for screen readers and search engines
+   */
   alt: string;
   prefix?: string | null;
   _objectKey?: string | null;
@@ -202,6 +284,84 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name?: string | null;
+  /**
+   * Admin: everything. Editor: all listings and leads. Agent: only their own listings.
+   */
+  role: 'admin' | 'editor' | 'agent';
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "districts".
+ */
+export interface District {
+  id: number;
+  name: string;
+  region: 'yerevan' | 'kotayk';
+  /**
+   * Latin letters, e.g. kentron. Used in links; avoid changing it.
+   */
+  key: string;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads".
+ */
+export interface Lead {
+  id: number;
+  kind: 'request' | 'contact' | 'submit' | 'newsletter';
+  status: 'new' | 'inProgress' | 'done';
+  name?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  message?: string | null;
+  property?: (number | null) | Property;
+  details?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  locale?: ('hy' | 'en' | 'ru') | null;
+  pageUrl?: string | null;
+  /**
+   * Not visible to the client
+   */
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -225,12 +385,28 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'users';
-        value: number | User;
+        relationTo: 'properties';
+        value: number | Property;
+      } | null)
+    | ({
+        relationTo: 'districts';
+        value: number | District;
+      } | null)
+    | ({
+        relationTo: 'agents';
+        value: number | Agent;
       } | null)
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'leads';
+        value: number | Lead;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -276,28 +452,68 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
+ * via the `definition` "properties_select".
  */
-export interface UsersSelect<T extends boolean = true> {
-  name?: T;
-  role?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  resetPasswordRequestedAt?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
+export interface PropertiesSelect<T extends boolean = true> {
+  code?: T;
+  status?: T;
+  agent?: T;
+  slug?: T;
+  deal?: T;
+  type?: T;
+  tags?: T;
+  title?: T;
+  district?: T;
+  street?: T;
+  description?: T;
+  priceUsd?: T;
+  oldPriceUsd?: T;
+  area?: T;
+  rooms?: T;
+  bedrooms?: T;
+  bathrooms?: T;
+  floor?: T;
+  floors?: T;
+  ceiling?: T;
+  building?: T;
+  condition?: T;
+  amenities?: T;
+  photos?: T;
+  seo?:
     | T
     | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
+        title?: T;
+        description?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "districts_select".
+ */
+export interface DistrictsSelect<T extends boolean = true> {
+  name?: T;
+  region?: T;
+  key?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "agents_select".
+ */
+export interface AgentsSelect<T extends boolean = true> {
+  name?: T;
+  photo?: T;
+  phone?: T;
+  whatsapp?: T;
+  email?: T;
+  languages?: T;
+  user?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -365,6 +581,50 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads_select".
+ */
+export interface LeadsSelect<T extends boolean = true> {
+  kind?: T;
+  status?: T;
+  name?: T;
+  phone?: T;
+  email?: T;
+  message?: T;
+  property?: T;
+  details?: T;
+  locale?: T;
+  pageUrl?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users_select".
+ */
+export interface UsersSelect<T extends boolean = true> {
+  name?: T;
+  role?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -402,6 +662,64 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  /**
+   * As shown on the site
+   */
+  phone: string;
+  /**
+   * Digits only, with country code
+   */
+  whatsapp: string;
+  email: string;
+  address: string;
+  hours?: string | null;
+  socials?: {
+    facebook?: string | null;
+    instagram?: string | null;
+    telegram?: string | null;
+  };
+  rates: {
+    amd: number;
+    rub: number;
+    updatedOn?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  phone?: T;
+  whatsapp?: T;
+  email?: T;
+  address?: T;
+  hours?: T;
+  socials?:
+    | T
+    | {
+        facebook?: T;
+        instagram?: T;
+        telegram?: T;
+      };
+  rates?:
+    | T
+    | {
+        amd?: T;
+        rub?: T;
+        updatedOn?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

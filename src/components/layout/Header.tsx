@@ -6,7 +6,7 @@ import { Heart, Menu, Phone, Search, Sparkles } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { Link, localizedHref, useT } from "@/i18n/client"
 import { useFavorites } from "@/components/providers/preferences"
-import { config } from "@/config"
+import { useSettings } from "@/components/providers/SettingsProvider"
 import { cn } from "@/lib/utils"
 import { Logo } from "./Logo"
 import { CurrencySwitch, InlineSwitches, LanguageSwitch, ThemeToggle } from "./Switchers"
@@ -107,6 +107,7 @@ export function HeaderWithSearch() {
  */
 export function Header({ search = "" }: { search?: string }) {
   const { t } = useT()
+  const settings = useSettings()
   // Paths are compared without the locale prefix: /hy/listings -> /listings
   const pathname = "/" + usePathname().split("/").slice(2).join("/")
   const scrolled = useScrolled()
@@ -176,14 +177,14 @@ export function Header({ search = "" }: { search?: string }) {
             </div>
             <FavoritesLink />
             <a
-              href={config.phoneHref}
+              href={settings.phoneHref}
               className={cn(
                 "btn ml-1 hidden h-10 px-4 xl:inline-flex",
                 overlay ? "bg-white text-night hover:bg-white/90" : "bg-iris text-white hover:bg-iris-soft",
               )}
             >
               <Phone className="size-4" aria-hidden="true" />
-              {config.phone}
+              {settings.phone}
             </a>
 
             <Sheet open={open} onOpenChange={setOpen}>
@@ -219,9 +220,9 @@ export function Header({ search = "" }: { search?: string }) {
                     ))}
                   </nav>
                   <InlineSwitches />
-                  <a href={config.phoneHref} className="btn-primary h-11 w-full shrink-0">
+                  <a href={settings.phoneHref} className="btn-primary h-11 w-full shrink-0">
                     <Phone className="size-4" aria-hidden="true" />
-                    {config.phone}
+                    {settings.phone}
                   </a>
                 </div>
               </SheetContent>

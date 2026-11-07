@@ -4,10 +4,12 @@ import { Suspense } from 'react'
 
 import { Footer } from '@/components/layout/Footer'
 import { Header, HeaderWithSearch } from '@/components/layout/Header'
+import { SettingsProvider } from '@/components/providers/SettingsProvider'
 import { ThemeSync } from '@/components/providers/ThemeSync'
 import { THEME_COLORS, THEME_SCRIPT } from '@/components/providers/preferences'
 import { LocaleProvider } from '@/i18n/client'
 import { isLocale, LOCALES } from '@/i18n/config'
+import { getSiteSettings } from '@/lib/settings'
 import '../globals.css'
 
 // Only /hy, /en and /ru exist; every page under them is prerendered per language.
@@ -27,6 +29,7 @@ export const viewport: Viewport = { themeColor: THEME_COLORS.light }
 export default async function SiteLayout({ children, params }: LayoutProps<'/[locale]'>) {
   const { locale } = await params
   if (!isLocale(locale)) notFound()
+  const settings = await getSiteSettings(locale)
 
   return (
     // The theme script may add `dark` before React hydrates
@@ -39,16 +42,18 @@ export default async function SiteLayout({ children, params }: LayoutProps<'/[lo
       </head>
       <body>
         <LocaleProvider locale={locale}>
-          <ThemeSync />
-          <div className="flex min-h-svh flex-col">
-            <Suspense fallback={<Header />}>
-              <HeaderWithSearch />
-            </Suspense>
-            <main id="main" className="flex-1">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <SettingsProvider value={settings}>
+            <ThemeSync />
+            <div className="flex min-h-svh flex-col">
+              <Suspense fallback={<Header />}>
+                <HeaderWithSearch />
+              </Suspense>
+              <main id="main" className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </div>
+          </SettingsProvider>
         </LocaleProvider>
       </body>
     </html>

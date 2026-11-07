@@ -2,6 +2,7 @@
 
 import { Mail, MapPin, Phone } from "lucide-react"
 import { Link, useT } from "@/i18n/client"
+import { useSettings } from "@/components/providers/SettingsProvider"
 import { config } from "@/config"
 import { Logo } from "./Logo"
 
@@ -28,7 +29,10 @@ const SocialIcon = ({ name }: { name: "facebook" | "instagram" | "telegram" }) =
 }
 
 export function Footer() {
-  const { t, tl } = useT()
+  const { t } = useT()
+  const settings = useSettings()
+  // Only the social networks that have a link in Site settings
+  const socials = (["facebook", "instagram", "telegram"] as const).filter((key) => settings.socials[key])
   const columns = [
     {
       title: t.footer.explore,
@@ -58,10 +62,10 @@ export function Footer() {
           <Logo tone="light" />
           <p className="text-[0.95rem] leading-relaxed text-white/65">{t.footer.tagline}</p>
           <div className="flex gap-2">
-            {(Object.keys(config.socials) as (keyof typeof config.socials)[]).map((key) => (
+            {socials.map((key) => (
               <a
                 key={key}
-                href={config.socials[key]}
+                href={settings.socials[key]}
                 target="_blank"
                 rel="noreferrer"
                 aria-label={key[0].toUpperCase() + key.slice(1)}
@@ -92,17 +96,17 @@ export function Footer() {
           <h2 className="mb-4 font-sans text-xs font-semibold tracking-[0.18em] text-white/50 uppercase">{t.footer.contact}</h2>
           <ul className="space-y-3 text-[0.95rem] text-white/80">
             <li>
-              <a href={config.phoneHref} className="group/c inline-flex items-center gap-2.5 transition-colors hover:text-white">
-                <Phone className="size-4 text-brand-bright" aria-hidden="true" /> {config.phone}
+              <a href={settings.phoneHref} className="group/c inline-flex items-center gap-2.5 transition-colors hover:text-white">
+                <Phone className="size-4 text-brand-bright" aria-hidden="true" /> {settings.phone}
               </a>
             </li>
             <li>
-              <a href={`mailto:${config.email}`} className="group/c inline-flex items-center gap-2.5 transition-colors hover:text-white">
-                <Mail className="size-4 text-brand-bright" aria-hidden="true" /> {config.email}
+              <a href={`mailto:${settings.email}`} className="group/c inline-flex items-center gap-2.5 transition-colors hover:text-white">
+                <Mail className="size-4 text-brand-bright" aria-hidden="true" /> {settings.email}
               </a>
             </li>
             <li className="inline-flex items-center gap-2.5">
-              <MapPin className="size-4 text-brand-bright" aria-hidden="true" /> {tl(config.address)}
+              <MapPin className="size-4 text-brand-bright" aria-hidden="true" /> {settings.address}
             </li>
           </ul>
         </div>

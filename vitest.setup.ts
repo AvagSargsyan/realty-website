@@ -1,4 +1,4 @@
-// Any setup scripts you might need go here
+import { config } from 'dotenv'
 
-// Load .env files
-import 'dotenv/config'
+// Same files as Next.js: .env.local (your machine) first, then .env. Already-set variables win (e.g. CI).
+config({ path: ['.env.local', '.env'] })

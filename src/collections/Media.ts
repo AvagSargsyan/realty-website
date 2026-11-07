@@ -1,16 +1,28 @@
 import type { CollectionConfig } from 'payload'
 
+import { anyone, isEditor, isStaff } from './shared/access'
+import { label } from './shared/labels'
+
 /**
  * Photos. Fixed sizes are generated once at upload (sharp) and served directly,
  * so the site never uses Vercel's monthly image-optimisation quota.
  */
 export const Media: CollectionConfig = {
   slug: 'media',
+  labels: {
+    singular: label('Photo', 'Լուսանկար', 'Фото'),
+    plural: label('Media', 'Մեդիա', 'Медиа'),
+  },
   access: {
-    read: () => true,
+    read: anyone,
+    // Any staff member can upload (agents add photos to their listings)
+    create: isStaff,
+    update: isStaff,
+    delete: isEditor,
   },
   admin: {
     useAsTitle: 'alt',
+    group: label('Listings', 'Գույք', 'Объекты'),
   },
   fields: [
     {
@@ -18,6 +30,14 @@ export const Media: CollectionConfig = {
       type: 'text',
       required: true,
       localized: true,
+      label: label('Description (alt text)', 'Նկարագրություն (alt)', 'Описание (alt)'),
+      admin: {
+        description: label(
+          'What the photo shows, for screen readers and search engines',
+          'Ինչ է պատկերված՝ էկրանի ընթերցիչների և որոնողական համակարգերի համար',
+          'Что на фото — для экранных дикторов и поисковиков',
+        ),
+      },
     },
   ],
   upload: {
