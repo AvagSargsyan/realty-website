@@ -9,6 +9,9 @@ const eslintConfig = [
       '@typescript-eslint/ban-ts-comment': 'warn',
       '@typescript-eslint/no-empty-object-type': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
+      // Photos use plain <img> with the fixed Payload sizes in srcset, on purpose: next/image would
+      // go through Vercel's image optimisation, which has a monthly quota on the free plan.
+      '@next/next/no-img-element': 'off',
       '@typescript-eslint/no-unused-vars': [
         'warn',
         {
