@@ -32,7 +32,6 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/realty_website
       PAYLOAD_SECRET: ci-only-not-a-real-secret
-      NEXT_PUBLIC_SERVER_URL: http://localhost:3000
 
     steps:
       - uses: actions/checkout@v4

@@ -37,4 +37,4 @@ The first visit to `/admin` asks you to create the first admin user.
 
 ## Environment variables
 
-See `.env.example`. On Vercel, `DATABASE_URL` is the Neon pooled connection string (Neon branch `main` for Production, `develop` for Preview) and `BLOB_READ_WRITE_TOKEN` from the Blob store; `PAYLOAD_SECRET` is set by hand per environment. `NEXT_PUBLIC_SERVER_URL` is only needed locally: on Vercel the URL comes from its system variables.
+See `.env.example`. On Vercel, `DATABASE_URL` is the Neon pooled connection string (Neon branch `main` for Production, `develop` for Preview) and `BLOB_READ_WRITE_TOKEN` from the Blob store; `PAYLOAD_SECRET` is set by hand per environment. The Blob store must be **Public** (Payload uploads with public access; the mode can't be changed after creation).
