@@ -28,7 +28,7 @@ The first visit to `/admin` asks you to create the first admin user.
 | `pnpm migrate` | Apply pending migrations |
 | `pnpm generate:types` | Regenerate `src/payload-types.ts` |
 | `pnpm seed` | Sample content: 12 districts, 3 agents, 50 published listings with photos (safe to re-run) |
-| `pnpm seed --env=staging` | The same, into the database and Blob store in `.env.staging` |
+| `pnpm seed:staging` | The same, into the database and Blob store in `.env.staging` |
 | `pnpm typecheck`, `pnpm lint` | Checks (also run in CI) |
 | `pnpm test:int` | Integration tests: roles and listing rules (needs the database; also run in CI) |
 | `pnpm payload run scripts/check-upload.ts` | Upload a test photo and print the generated sizes |
@@ -45,11 +45,11 @@ See `.env.example`. On Vercel, `DATABASE_URL` is the Neon pooled connection stri
 
 ## Sample content on staging
 
-`pnpm seed --env=staging` reads `.env.staging` (gitignored, like every `.env*` file) instead of `.env.local`:
+`pnpm seed:staging` reads `.env.staging` (gitignored, like every `.env*` file) instead of `.env.local`:
 
 ```bash
 DATABASE_URL=     # Neon branch preview/develop, pooled connection string
 BLOB_READ_WRITE_TOKEN=   # the Public Blob store's read-write token
 ```
 
-The seed prints the database host before writing. Photos come from Unsplash (free licence) and are processed into the Payload image sizes on your machine, then uploaded to Blob.
+The seed prints the database host before writing, and stops if `.env.staging` still points at this machine or has no Blob token. Photos come from Unsplash (free licence) and are processed into the Payload image sizes on your machine, then uploaded to Blob.

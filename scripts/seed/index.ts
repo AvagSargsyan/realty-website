@@ -1,8 +1,8 @@
 /**
  * Fills a database with sample content: 12 districts, 3 agents and 50 published listings with photos.
  *
- *   pnpm seed                 -> the database in .env.local (your Docker Postgres)
- *   pnpm seed --env=staging   -> the database and Blob store in .env.staging (see README)
+ *   pnpm seed           -> the database in .env.local (your Docker Postgres)
+ *   pnpm seed:staging   -> the database and Blob store in .env.staging (see README)
  *
  * Safe to re-run: districts, agents, photos and listings are matched by key / email / file name /
  * code and updated instead of duplicated.
@@ -16,16 +16,24 @@ const LOCALES = ['hy', 'en', 'ru'] as const
 type Locale = (typeof LOCALES)[number]
 
 // ---------- Which database ----------
-const envArg = process.argv.find((a) => a.startsWith('--env='))?.slice(6)
-if (envArg) {
+// SEED_ENV, not a CLI flag: `payload run` doesn't pass extra arguments to the script
+const seedEnv = process.env.SEED_ENV
+if (seedEnv) {
   // Overrides what `payload run` loaded from .env.local
-  const result = loadEnv({ path: `.env.${envArg}`, override: true })
-  if (result.error) throw new Error(`Could not read .env.${envArg}: ${result.error.message}`)
+  const result = loadEnv({ path: `.env.${seedEnv}`, override: true })
+  if (result.error) throw new Error(`Could not read .env.${seedEnv}: ${result.error.message}`)
 }
 const dbUrl = new URL(process.env.DATABASE_URL ?? '')
 const target = `${dbUrl.hostname}${dbUrl.pathname}`
 const storage = process.env.BLOB_READ_WRITE_TOKEN ? 'Vercel Blob' : 'local /media folder'
 console.log(`\nSeeding ${target} (photos: ${storage})\n`)
+
+// Asked for a remote environment but still pointing at this machine: stop before writing anything
+const isLocal = ['localhost', '127.0.0.1', '::1'].includes(dbUrl.hostname)
+if (seedEnv && (isLocal || !process.env.BLOB_READ_WRITE_TOKEN)) {
+  console.error(`.env.${seedEnv} must set a remote DATABASE_URL and BLOB_READ_WRITE_TOKEN. Nothing was written.`)
+  process.exit(1)
+}
 
 // Imported after the env is final: the config reads DATABASE_URL and the Blob token on import
 const { default: config } = await import('@payload-config')
