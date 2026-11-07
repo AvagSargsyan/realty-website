@@ -1,0 +1,231 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/manrope";
+@import "@fontsource-variable/noto-sans-armenian";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------
+   Design tokens: realty-website-demo, "Petrol & Ember"
+   Deep petrol blue + cool mist neutrals + the Avenue logo orange as the signature accent.
+   Sharp editorial corners.
+   ------------------------------------------------------------------ */
+:root {
+  /* Brand palette: deep petrol + the Avenue logo orange */
+  --bg: #ffffff;          /* page background */
+  --surface: #f3f6f7;     /* mist: panels, section backgrounds */
+  --surface-2: #e6edf0;   /* deeper mist (hover, chips) */
+  --ink: #0b1f27;         /* text: near-black petrol */
+  --ink-soft: #1d3540;    /* ink hover */
+  --iris: #0c4a60;        /* primary actions (buttons, active states) */
+  --iris-soft: #125a74;   /* primary hover */
+  --iris-tint: #e5f0f4;   /* light petrol wash (selected chips, highlights) */
+  --iris-ink: #0c4a60;    /* petrol used as TEXT */
+  --muted-ink: #566a72;   /* secondary text */
+  --line: #dfe7ea;        /* dividers and borders */
+  --brand: #b85a17;       /* deep orange: saved heart, orange buttons (AA with white) */
+  --brand-strong: #a9520f;/* orange text on white */
+  --brand-bright: #ea8435;/* exact logo orange: decoration only, never text */
+  --positive: #2f7a55;    /* price drops */
+  --night: #0b1f27;       /* always-dark surfaces: footer, dark badges */
+  color-scheme: light;
+  --destructive: #b42318;
+  --radius: 0.25rem; /* 4px: crisp, editorial corners */
+}
+
+/* ---------- Dark theme: same token names, night-time values ---------- */
+.dark {
+  --bg: #0a161b;
+  --surface: #102127;
+  --surface-2: #172c33;
+  --ink: #e8f1f4;
+  --ink-soft: #c8d7dc;
+  --iris: #13617d;
+  --iris-soft: #1a7092;
+  --iris-tint: #12313b;
+  --iris-ink: #8ccde3;
+  --muted-ink: #9db2ba;
+  --line: #20363e;
+  --brand: #b85a17;
+  --brand-strong: #f0a35e;
+  --brand-bright: #ea8435;
+  --positive: #6fc59a;
+  --night: #061014;
+  --destructive: #f97066;
+  color-scheme: dark;
+}
+
+/* Map the palette onto shadcn variables. Declared on .dark too, so a section that
+   switches to dark on its own (e.g. the Exclusive band) recomputes them. */
+:root,
+.dark {
+  --background: var(--bg);
+  --foreground: var(--ink);
+  --card: var(--bg);
+  --card-foreground: var(--ink);
+  --popover: var(--bg);
+  --popover-foreground: var(--ink);
+  --primary: var(--iris);
+  --primary-foreground: #ffffff;
+  --secondary: var(--surface);
+  --secondary-foreground: var(--ink);
+  --muted: var(--surface);
+  --muted-foreground: var(--muted-ink);
+  --accent: var(--surface-2);
+  --accent-foreground: var(--ink);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--iris);
+}
+
+@theme inline {
+  /* Fonts: Latin/Cyrillic first, Armenian fallback per glyph */
+  --font-sans: "Inter Variable", "Noto Sans Armenian Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Manrope Variable", "Noto Sans Armenian Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* Brand colours as Tailwind utilities: bg-surface, text-ink, border-line, text-brand ... */
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-iris: var(--iris);
+  --color-iris-soft: var(--iris-soft);
+  --color-iris-tint: var(--iris-tint);
+  --color-iris-ink: var(--iris-ink);
+  --color-night: var(--night);
+  --color-muted-ink: var(--muted-ink);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-bright: var(--brand-bright);
+  --color-positive: var(--positive);
+
+  /* shadcn colours */
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+
+  --radius-sm: 0.1875rem; /* 3px */
+  --radius-md: 0.25rem;   /* 4px: buttons, inputs */
+  --radius-lg: 0.25rem;   /* 4px: cards */
+  --radius-xl: 0.375rem;
+  --radius-2xl: 0.5rem;
+
+  /* Motion */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+  }
+  h1, h2, h3, .font-heading {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  /* Visible keyboard focus everywhere */
+  :focus-visible {
+    outline: 2px solid var(--iris-ink);
+    outline-offset: 2px;
+  }
+  /* Respect reduced-motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-[1440px] px-4 md:px-8;
+  }
+}
+
+/* ---------- Buttons: one consistent hover / press language ---------- */
+@utility btn {
+  @apply inline-flex h-12 items-center justify-center gap-2 rounded-md px-6 text-sm font-semibold tracking-wide whitespace-nowrap
+    transition-[background-color,border-color,color,box-shadow,translate,scale] duration-200 ease-out
+    active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-iris text-white hover:-translate-y-px hover:bg-iris-soft hover:shadow-[0_10px_24px_-12px_rgba(12,74,96,0.55)];
+}
+@utility btn-accent {
+  @apply btn bg-brand text-white hover:-translate-y-px hover:bg-brand-strong hover:shadow-[0_10px_24px_-10px_rgba(184,90,23,0.6)];
+}
+@utility btn-secondary {
+  @apply btn border border-ink/20 bg-background text-ink hover:border-iris-ink hover:text-iris-ink;
+}
+/* Round icon button on light backgrounds (header icons, menu) */
+@utility icon-btn {
+  @apply grid size-10 place-items-center rounded-full text-ink transition-[background-color,color,scale] duration-200 ease-out
+    hover:bg-surface-2 hover:text-iris-ink active:scale-90;
+}
+/* Round floating button over photos (heart, arrows) */
+@utility float-btn {
+  @apply grid place-items-center rounded-full bg-white/85 text-night shadow-sm backdrop-blur
+    transition-[background-color,color,box-shadow,scale] duration-200 ease-out
+    hover:scale-[1.06] hover:bg-white active:scale-95;
+}
+/* Filter-style chip */
+@utility chip {
+  @apply inline-flex h-9 items-center rounded-md border border-line bg-background px-3.5 text-sm text-ink
+    transition-[background-color,border-color,color] duration-200 hover:border-iris/40 hover:bg-surface;
+}
+@utility chip-active {
+  @apply inline-flex h-9 items-center rounded-md border border-iris bg-iris-tint px-3.5 text-sm font-medium text-iris-ink transition-colors duration-200 hover:bg-surface-2;
+}
+/* Text link with animated underline */
+@utility link-underline {
+  @apply bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-left-bottom bg-no-repeat pb-0.5
+    transition-[background-size,color] duration-300 ease-out hover:bg-[length:100%_1px];
+}
+
+/* Horizontal rails: keep swipe/scroll, hide the scrollbar */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Hero "scroll / more" hint: the arrow nudges gently downward (stopped by reduced-motion) */
+@keyframes scroll-nudge {
+  0%, 100% { transform: translateY(-1px); }
+  50% { transform: translateY(3px); }
+}
+.scroll-nudge {
+  animation: scroll-nudge 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
