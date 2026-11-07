@@ -52,8 +52,9 @@ export function Footer() {
 
   return (
     <footer className="mt-24 bg-night text-white">
-      <div className="container-page grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
-        <div className="max-w-sm space-y-5">
+      {/* Phones: the two link lists sit side by side; brand and contact take the full width */}
+      <div className="container-page grid grid-cols-2 gap-x-6 gap-y-10 py-12 md:gap-12 md:py-16 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
+        <div className="col-span-2 max-w-sm space-y-5 md:col-span-1">
           <Logo tone="light" />
           <p className="text-[0.95rem] leading-relaxed text-white/65">{t.footer.tagline}</p>
           <div className="flex gap-2">
@@ -87,7 +88,7 @@ export function Footer() {
           </nav>
         ))}
 
-        <div>
+        <div className="col-span-2 md:col-span-1">
           <h2 className="mb-4 font-sans text-xs font-semibold tracking-[0.18em] text-white/50 uppercase">{t.footer.contact}</h2>
           <ul className="space-y-3 text-[0.95rem] text-white/80">
             <li>

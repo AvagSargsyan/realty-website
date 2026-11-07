@@ -140,13 +140,13 @@ export function InlineSwitches() {
   const { theme, setTheme } = useTheme()
   const pill = (active: boolean) =>
     cn(
-      "h-10 flex-1 rounded-md border text-sm font-medium transition-colors",
+      "h-9 min-w-0 flex-1 truncate rounded-md border px-2 text-[0.8rem] font-medium transition-colors",
       active ? "border-iris bg-iris text-white" : "border-line bg-background text-ink hover:border-iris-ink/40 hover:bg-surface",
     )
   return (
-    <div className="space-y-4">
+    <div className="space-y-3.5">
       <fieldset>
-        <legend className="mb-2 text-xs font-medium tracking-wider text-muted-ink uppercase">{t.header.language}</legend>
+        <legend className="mb-1.5 text-[0.7rem] font-medium tracking-wider text-muted-ink uppercase">{t.header.language}</legend>
         <div className="flex gap-2">
           {LANGS.map((l) => (
             <button key={l.value} type="button" className={pill(l.value === lang)} aria-pressed={l.value === lang} onClick={() => setLang(l.value)} lang={l.value}>
@@ -156,7 +156,7 @@ export function InlineSwitches() {
         </div>
       </fieldset>
       <fieldset>
-        <legend className="mb-2 text-xs font-medium tracking-wider text-muted-ink uppercase">{t.header.currency}</legend>
+        <legend className="mb-1.5 text-[0.7rem] font-medium tracking-wider text-muted-ink uppercase">{t.header.currency}</legend>
         <div className="flex gap-2">
           {CURRENCIES.map((c) => (
             <button key={c.value} type="button" className={pill(c.value === currency)} aria-pressed={c.value === currency} onClick={() => setCurrency(c.value)}>
@@ -166,12 +166,20 @@ export function InlineSwitches() {
         </div>
       </fieldset>
       <fieldset>
-        <legend className="mb-2 text-xs font-medium tracking-wider text-muted-ink uppercase">{t.header.theme}</legend>
+        <legend className="mb-1.5 text-[0.7rem] font-medium tracking-wider text-muted-ink uppercase">{t.header.theme}</legend>
         <div className="flex gap-2">
           {THEMES.map(({ value, icon: Icon }) => (
-            <button key={value} type="button" className={cn(pill(value === theme), "inline-flex items-center justify-center gap-1.5")} aria-pressed={value === theme} onClick={() => setTheme(value)}>
+            // Icon only on phones (the labels didn't fit); the name stays for screen readers and as a tooltip
+            <button
+              key={value}
+              type="button"
+              className={cn(pill(value === theme), "inline-flex items-center justify-center")}
+              aria-pressed={value === theme}
+              aria-label={t.header[value]}
+              title={t.header[value]}
+              onClick={() => setTheme(value)}
+            >
               <Icon className="size-4" aria-hidden="true" />
-              {t.header[value]}
             </button>
           ))}
         </div>

@@ -190,12 +190,19 @@ export function Header({ search = "" }: { search?: string }) {
               <SheetTrigger className="icon-btn lg:hidden" aria-label={t.nav.menu}>
                 <Menu className="size-5" aria-hidden="true" />
               </SheetTrigger>
-              <SheetContent side="right" className="w-[88vw] max-w-sm gap-0 p-0 text-ink">
+              <SheetContent
+                side="right"
+                // data-[side] prefix: the base sheet sets its width with data-[side=right]:w-3/4, which beats plain w-*
+                className="gap-0 p-0 text-ink data-[side=right]:w-[88vw] data-[side=right]:max-w-sm"
+                // Don't focus the search box on open: on phones that pops up the keyboard over the menu
+                onOpenAutoFocus={(e) => e.preventDefault()}
+              >
                 <SheetTitle className="sr-only">{t.nav.menu}</SheetTitle>
-                <div className="border-b border-line px-5 py-5">
-                  <Logo />
+                <div className="border-b border-line px-5 py-3.5">
+                  <Logo className="[&_svg]:h-10" />
                 </div>
-                <div className="flex flex-col gap-6 overflow-y-auto px-5 py-6">
+                {/* min-h-0 lets this column scroll inside the full-height sheet on short screens */}
+                <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain px-5 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
                   <HeaderSearch id="mobile-search" className="md:hidden" />
                   <nav aria-label="Mobile" className="flex flex-col">
                     {[{ to: "/", label: t.nav.home }, ...navItems, { to: "/favorites", label: t.nav.favorites }].map((item) => (
@@ -204,15 +211,15 @@ export function Header({ search = "" }: { search?: string }) {
                         href={item.to}
                         onClick={() => setOpen(false)}
                         aria-current={isCurrent(item.to) ? "page" : undefined}
-                        className="group/m flex items-center justify-between border-b border-line py-3.5 font-heading text-xl text-ink transition-colors hover:text-iris-ink aria-[current=page]:text-iris-ink"
+                        className="group/m flex items-center justify-between border-b border-line py-3 font-heading text-[1.05rem] text-ink transition-colors hover:text-iris-ink aria-[current=page]:text-iris-ink"
                       >
                         <span className="transition-transform duration-200 group-hover/m:translate-x-1">{item.label}</span>
-                        <span aria-hidden="true" className="text-base opacity-0 transition-opacity duration-200 group-hover/m:opacity-100">→</span>
+                        <span aria-hidden="true" className="text-sm opacity-0 transition-opacity duration-200 group-hover/m:opacity-100">→</span>
                       </Link>
                     ))}
                   </nav>
                   <InlineSwitches />
-                  <a href={config.phoneHref} className="btn-primary w-full">
+                  <a href={config.phoneHref} className="btn-primary h-11 w-full shrink-0">
                     <Phone className="size-4" aria-hidden="true" />
                     {config.phone}
                   </a>
