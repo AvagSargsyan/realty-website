@@ -71,6 +71,21 @@ export const Properties: CollectionConfig = {
     listSearchableFields: ['title', 'street'],
     group: label('Listings', 'Գույք', 'Объекты'),
     pagination: { defaultLimit: 25 },
+    // The public property page, updated live while editing (src/app/(site)/[locale]/preview/property)
+    livePreview: {
+      url: ({ data, locale, req }) => {
+        if (!data?.id) return null // nothing to show until the listing has been saved once
+        // Same host the admin is open on (no fixed serverURL), so it works on every deployment URL
+        const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host')
+        if (!host) return null
+        const proto = req.headers.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https')
+        return `${proto}://${host}/${locale?.code ?? 'hy'}/preview/property/${data.id}`
+      },
+      breakpoints: [
+        { name: 'mobile', label: 'Mobile', width: 390, height: 844 },
+        { name: 'desktop', label: 'Desktop', width: 1440, height: 900 },
+      ],
+    },
   },
   defaultSort: '-updatedAt',
   access: {

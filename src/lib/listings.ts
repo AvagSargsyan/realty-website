@@ -7,8 +7,8 @@ import { cache } from 'react'
 
 import type { DistrictNames, IndexRow } from '@/lib/filters'
 import type { ListingQuery } from '@/lib/search'
-import type { District, Media, Property } from '@/payload-types'
-import type { Lang, Listing, ListingDistrict, Photo, Region } from '@/types'
+import { toDistrict, toListing } from '@/lib/to-listing'
+import type { Lang, Listing, ListingDistrict } from '@/types'
 
 /**
  * Listings for the public pages, read with the Payload Local API (a direct database query in the
@@ -20,58 +20,6 @@ const getClient = cache(async () => getPayload({ config }))
 
 /** Listings visitors may see. Sold and rented ones stay reachable by URL but leave search and rails. */
 export const ACTIVE: Where = { status: { equals: 'published' } }
-
-function toPhoto(m: number | Media | null | undefined): Photo | null {
-  if (!m || typeof m === 'number' || !m.url) return null
-  const s = m.sizes
-  // A size is missing when the original was smaller than it; fall back to the original
-  return {
-    alt: m.alt ?? '',
-    thumb: s?.thumb?.url ?? m.url,
-    card: s?.card?.url ?? m.url,
-    large: s?.large?.url ?? m.url,
-    full: m.url,
-    og: s?.og?.url ?? undefined,
-    width: m.width ?? undefined,
-    height: m.height ?? undefined,
-  }
-}
-
-function toDistrict(d: number | District): ListingDistrict {
-  if (typeof d === 'number') return { key: '', name: '', region: 'yerevan' }
-  return { key: d.key, name: d.name, region: d.region as Region }
-}
-
-/** Payload document -> the plain shape the components use. `maxPhotos` keeps card payloads small. */
-export function toListing(p: Property, maxPhotos = Infinity): Listing {
-  const photos = (p.photos ?? []).map(toPhoto).filter((x): x is Photo => x !== null).slice(0, maxPhotos)
-  return {
-    id: p.code ?? p.id,
-    slug: p.slug ?? '',
-    status: (p.status === 'sold' || p.status === 'rented' ? p.status : 'published') as Listing['status'],
-    deal: p.deal,
-    type: p.type,
-    tags: (p.tags ?? []) as Listing['tags'],
-    title: p.title,
-    district: toDistrict(p.district),
-    street: p.street ?? '',
-    priceUsd: p.priceUsd,
-    oldPriceUsd: p.oldPriceUsd && p.oldPriceUsd > p.priceUsd ? p.oldPriceUsd : undefined,
-    area: p.area,
-    rooms: p.rooms ?? 0,
-    bedrooms: p.bedrooms ?? 0,
-    bathrooms: p.bathrooms ?? 0,
-    floor: p.floor ?? 0,
-    floors: p.floors ?? 0,
-    ceiling: p.ceiling ?? 0,
-    building: p.building ?? undefined,
-    condition: p.condition ?? undefined,
-    amenities: p.amenities ?? [],
-    description: p.description ?? '',
-    photos,
-    updatedAt: p.updatedAt,
-  }
-}
 
 const CARD_PHOTOS = 5
 
