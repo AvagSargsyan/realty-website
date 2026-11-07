@@ -63,7 +63,9 @@ export default buildConfig({
       // Without a token (local development) uploads fall back to the /media folder
       enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
       token: process.env.BLOB_READ_WRITE_TOKEN,
-      collections: { media: true },
+      // Media is public, so file URLs point straight at the Blob CDN instead of /api/media/file/...
+      // (which would stream every image through our serverless function).
+      collections: { media: { disablePayloadAccessControl: true } },
       // Same database columns with or without Blob, so migrations match everywhere
       alwaysInsertFields: true,
       addRandomSuffix: true,
