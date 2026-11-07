@@ -11,6 +11,7 @@ pnpm install
 pnpm db:up                  # local Postgres on port 5433 (docker compose)
 cp .env.example .env.local  # then set PAYLOAD_SECRET (e.g. `openssl rand -hex 32`)
 pnpm migrate                # create the database tables
+pnpm seed                   # optional: sample districts, agents and 50 listings with photos
 pnpm dev                    # http://localhost:3000, admin at /admin
 ```
 
@@ -26,7 +27,10 @@ The first visit to `/admin` asks you to create the first admin user.
 | `pnpm migrate:create <name>` | Create a migration after changing collections |
 | `pnpm migrate` | Apply pending migrations |
 | `pnpm generate:types` | Regenerate `src/payload-types.ts` |
+| `pnpm seed` | Sample content: 12 districts, 3 agents, 50 published listings with photos (safe to re-run) |
+| `pnpm seed --env=staging` | The same, into the database and Blob store in `.env.staging` |
 | `pnpm typecheck`, `pnpm lint` | Checks (also run in CI) |
+| `pnpm test:int` | Integration tests: roles and listing rules (needs the database; also run in CI) |
 | `pnpm payload run scripts/check-upload.ts` | Upload a test photo and print the generated sizes |
 
 ## Branches
@@ -38,3 +42,14 @@ The first visit to `/admin` asks you to create the first admin user.
 ## Environment variables
 
 See `.env.example`. On Vercel, `DATABASE_URL` is the Neon pooled connection string (Neon branch `main` for Production, `develop` for Preview) and `BLOB_READ_WRITE_TOKEN` from the Blob store; `PAYLOAD_SECRET` is set by hand per environment. The Blob store must be **Public** (Payload uploads with public access; the mode can't be changed after creation).
+
+## Sample content on staging
+
+`pnpm seed --env=staging` reads `.env.staging` (gitignored, like every `.env*` file) instead of `.env.local`:
+
+```bash
+DATABASE_URL=     # Neon branch preview/develop, pooled connection string
+BLOB_READ_WRITE_TOKEN=   # the Public Blob store's read-write token
+```
+
+The seed prints the database host before writing. Photos come from Unsplash (free licence) and are processed into the Payload image sizes on your machine, then uploaded to Blob.
