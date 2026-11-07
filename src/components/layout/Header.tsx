@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Heart, Menu, Phone, Search, Sparkles } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { Link, localizedHref, useT } from "@/i18n/client"
-import { useFavorites } from "@/components/providers/preferences"
+import { useCurrency, useFavorites } from "@/components/providers/preferences"
 import { useSettings } from "@/components/providers/SettingsProvider"
 import { cn } from "@/lib/utils"
 import { Logo } from "./Logo"
@@ -32,10 +32,13 @@ function useScrolled(threshold = 24) {
 function HeaderSearch({ className, overlay = false, id = "header-search" }: { className?: string; overlay?: boolean; id?: string }) {
   const { t, lang } = useT()
   const router = useRouter()
+  const [currency] = useCurrency()
   const [q, setQ] = useState("")
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
-    router.push(localizedHref(q.trim() ? `/listings?q=${encodeURIComponent(q.trim())}` : "/listings", lang))
+    // `cur`: the currency on screen, for prices typed without a sign (the server parses the text)
+    const query = q.trim() ? `/listings?q=${encodeURIComponent(q.trim())}&cur=${currency}` : "/listings"
+    router.push(localizedHref(query, lang))
   }
   return (
     <form role="search" onSubmit={onSubmit} className={cn("relative", className)}>

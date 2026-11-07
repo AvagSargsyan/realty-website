@@ -1,9 +1,11 @@
 import 'server-only'
 
 import config from '@payload-config'
+import { unstable_cache } from 'next/cache'
 import { getPayload, type Where } from 'payload'
 import { cache } from 'react'
 
+import type { DistrictNames, IndexRow } from '@/lib/filters'
 import type { ListingQuery } from '@/lib/search'
 import type { District, Media, Property } from '@/payload-types'
 import type { Lang, Listing, ListingDistrict, Photo, Region } from '@/types'
@@ -119,10 +121,91 @@ export const getDistricts = cache(async (locale: Lang): Promise<ListingDistrict[
   return res.docs.map(toDistrict)
 })
 
-/** District id by URL key (?district=kentron), for filters. */
-export async function districtIds(keys: string[]) {
-  if (!keys.length) return []
+/* ---------- Listings page: a cached index of every published listing ---------- */
+
+/** Cache tag cleared whenever listings or districts change in the admin (see revalidateSite). */
+export const LISTINGS_TAG = 'listings'
+
+type AllLocales<T> = { hy?: T | null; en?: T | null; ru?: T | null } | T | null | undefined
+const allText = (v: AllLocales<string>) =>
+  v && typeof v === 'object' ? [v.hy, v.en, v.ru].filter(Boolean).join(' ') : (v ?? '')
+
+/**
+ * Every published listing's filterable fields plus district names in all languages. One small query,
+ * cached until the admin changes something, so filtering and facet counts run without the database.
+ */
+export const getListingIndex = unstable_cache(
+  async (): Promise<{ rows: IndexRow[]; districts: DistrictNames }> => {
+    const payload = await getClient()
+    const [props, dists] = await Promise.all([
+      payload.find({
+        collection: 'properties',
+        where: ACTIVE,
+        locale: 'all',
+        depth: 0,
+        limit: 0, // all
+        pagination: false,
+        overrideAccess: false,
+        select: {
+          code: true, deal: true, type: true, district: true, rooms: true, priceUsd: true, area: true,
+          floor: true, condition: true, building: true, tags: true, updatedAt: true, title: true, street: true,
+        },
+      }),
+      payload.find({ collection: 'districts', locale: 'all', depth: 0, limit: 0, pagination: false }),
+    ])
+
+    const districts: DistrictNames = {}
+    const keyById = new Map<number, string>()
+    for (const d of dists.docs) {
+      const name = d.name as unknown as AllLocales<string>
+      const names = name && typeof name === 'object' ? name : { hy: name, en: name, ru: name }
+      districts[d.key] = { hy: names.hy ?? '', en: names.en ?? '', ru: names.ru ?? '' }
+      keyById.set(d.id, d.key)
+    }
+
+    const rows: IndexRow[] = props.docs.map((p) => {
+      const district = keyById.get(p.district as number) ?? ''
+      return {
+        id: p.code ?? p.id,
+        deal: p.deal,
+        type: p.type,
+        district,
+        rooms: p.rooms ?? 0,
+        priceUsd: p.priceUsd,
+        area: p.area,
+        floor: p.floor ?? 0,
+        condition: p.condition ?? undefined,
+        building: p.building ?? undefined,
+        tags: (p.tags ?? []) as IndexRow['tags'],
+        updatedAt: p.updatedAt,
+        text: [
+          allText(p.title as unknown as AllLocales<string>),
+          allText(p.street as unknown as AllLocales<string>),
+          ...Object.values(districts[district] ?? {}),
+        ]
+          .join(' ')
+          .toLocaleLowerCase(),
+      }
+    })
+    return { rows, districts }
+  },
+  ['listing-index'],
+  { tags: [LISTINGS_TAG], revalidate: 3600 },
+)
+
+/** Full card data for the given public codes, in that order. */
+export async function findByCodes(locale: Lang, codes: number[]): Promise<Listing[]> {
+  if (!codes.length) return []
   const payload = await getClient()
-  const res = await payload.find({ collection: 'districts', where: { key: { in: keys } }, limit: 100, depth: 0 })
-  return res.docs.map((d) => d.id)
+  const res = await payload.find({
+    collection: 'properties',
+    where: { and: [ACTIVE, { code: { in: codes } }] },
+    locale,
+    fallbackLocale: 'hy',
+    depth: 1,
+    limit: codes.length,
+    overrideAccess: false,
+  })
+  const byCode = new Map(res.docs.map((p) => [p.code, toListing(p, CARD_PHOTOS)]))
+  return codes.map((c) => byCode.get(c)).filter((l): l is Listing => Boolean(l))
 }
