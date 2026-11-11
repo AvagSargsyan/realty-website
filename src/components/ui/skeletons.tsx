@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils"
 
 /**
  * Placeholders shown by the routes' loading.tsx while the server renders the page. Their boxes follow
- * the real layouts (ListingsView, ListingCard, PropertyView), so nothing jumps when the content arrives.
+ * the real layouts (ListingsView, ListingCard), so nothing jumps when the content arrives.
  * No text: loading.tsx gets no locale.
  */
 
@@ -57,24 +57,6 @@ export function ListingsSkeleton() {
   )
 }
 
-export function PropertySkeleton() {
-  return (
-    <div className="container-page pt-4 pb-28 md:pt-8 lg:pb-20" aria-busy="true">
-      <Bone className="mb-4 hidden h-4 w-72 md:block" />
-      <Bone className="aspect-[4/3] rounded-lg md:aspect-auto md:h-[420px] lg:h-[520px]" />
-      <div className="mt-8 grid gap-10 md:mt-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-14 xl:grid-cols-[minmax(0,1fr)_400px]">
-        <div>
-          <Bone className="h-3 w-40" />
-          <Bone className="mt-3 h-9 w-4/5" />
-          <Bone className="mt-3 h-4 w-1/2" />
-          <div className="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 xl:grid-cols-4">
-            {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
-              <Bone key={i} className="h-10" />
-            ))}
-          </div>
-        </div>
-        <Bone className="h-72 rounded-lg" />
-      </div>
-    </div>
-  )
-}
+// No property-page skeleton on purpose: a loading.tsx there starts the response before the page knows
+// whether the listing exists, so unknown codes answered 200 instead of 404 and old slugs redirected in
+// the browser instead of with a 308. The navigation progress bar covers those clicks.
