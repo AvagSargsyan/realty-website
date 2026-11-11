@@ -1,5 +1,6 @@
 /**
- * Fills a database with sample content: 12 districts, 3 agents and 50 published listings with photos.
+ * Fills a database with sample content: 12 districts, 3 agents and 300 published listings with photos
+ * (the demo's 30 exactly, plus 270 more from the same generator).
  *
  *   pnpm seed           -> the database in .env.local (your Docker Postgres)
  *   pnpm seed:staging   -> the database and Blob store in .env.staging (see README)
@@ -58,7 +59,21 @@ const EXTRA = {
     ['rent', 'commercial', 1],
   ],
 } satisfies typeof DEMO
-const listings: SampleListing[] = [...generateListings(DEMO), ...generateListings(EXTRA)]
+// 250 more from a third run (300 in total), enough for filters, counts and "Load more" to feel real.
+// Its codes start well above the other runs, so they never collide.
+const MORE = {
+  seed: 20261111,
+  startId: 426000,
+  mix: [
+    ['sale', 'apartment', 110],
+    ['sale', 'house', 35],
+    ['sale', 'commercial', 20],
+    ['sale', 'land', 8],
+    ['rent', 'apartment', 60],
+    ['rent', 'commercial', 17],
+  ],
+} satisfies typeof DEMO
+const listings: SampleListing[] = [...generateListings(DEMO), ...generateListings(EXTRA), ...generateListings(MORE)]
 
 /** Create or update one document in every locale: `fields(locale)` returns that locale's values. */
 async function upsert<C extends 'districts' | 'agents' | 'properties'>(
@@ -150,7 +165,21 @@ await Promise.all(
 console.log(`\n✓ ${photoPools.size} photos (${downloaded} downloaded, ${photoPools.size - downloaded} already there)`)
 
 // ---------- Listings ----------
-for (const [i, l] of listings.entries()) {
+// Four at a time (each listing is several queries per language; one by one is slow on a remote database)
+const pending = [...listings.entries()]
+let saved = 0
+await Promise.all(
+  Array.from({ length: 4 }, async () => {
+    for (let next = pending.shift(); next; next = pending.shift()) {
+      await saveListing(next[0], next[1])
+      process.stdout.write(`\r  listings: ${++saved}/${listings.length}`)
+    }
+  }),
+)
+console.log(`\n✓ ${listings.length} listings\n\nDone.`)
+process.exit(0)
+
+async function saveListing(i: number, l: SampleListing) {
   await upsert('properties', { code: { equals: l.code } }, (locale) => ({
     code: l.code,
     status: 'published',
@@ -180,7 +209,4 @@ for (const [i, l] of listings.entries()) {
     photos: l.photos.map((p) => mediaIds.get(p.id)!),
     agent: agentIds[i % agentIds.length],
   }))
-  process.stdout.write(`\r  listings: ${i + 1}/${listings.length}`)
 }
-console.log(`\n✓ ${listings.length} listings\n\nDone.`)
-process.exit(0)

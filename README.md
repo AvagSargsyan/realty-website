@@ -11,7 +11,7 @@ pnpm install
 pnpm db:up                  # local Postgres on port 5433 (docker compose)
 cp .env.example .env.local  # then set PAYLOAD_SECRET (e.g. `openssl rand -hex 32`)
 pnpm migrate                # create the database tables
-pnpm seed                   # optional: sample districts, agents and 50 listings with photos
+pnpm seed                   # optional: sample districts, agents and 300 listings with photos
 pnpm dev                    # http://localhost:3000, admin at /admin
 ```
 
@@ -27,7 +27,7 @@ The first visit to `/admin` asks you to create the first admin user.
 | `pnpm migrate:create <name>` | Create a migration after changing collections |
 | `pnpm migrate` | Apply pending migrations |
 | `pnpm generate:types` | Regenerate `src/payload-types.ts` |
-| `pnpm seed` | Sample content: 12 districts, 3 agents, 50 published listings with photos (safe to re-run) |
+| `pnpm seed` | Sample content: 12 districts, 3 agents, 300 published listings with photos (safe to re-run) |
 | `pnpm seed:staging` | The same, into the database and Blob store in `.env.staging` |
 | `pnpm typecheck`, `pnpm lint` | Checks (also run in CI) |
 | `pnpm test:int` | Integration tests: roles and listing rules (needs the database; also run in CI) |
