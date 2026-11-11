@@ -2,9 +2,12 @@
 
 import config from '@payload-config'
 import { headers } from 'next/headers'
+import { after } from 'next/server'
 import { getPayload } from 'payload'
 
 import { isLocale } from '@/i18n/config'
+import { sendLeadEmail } from '@/lib/lead-email'
+import { clientIp, hashIp, isRateLimited, verifyBotCheck } from '@/lib/spam'
 import { isEmail, isPhone } from '@/lib/validation'
 
 /** What an owner tells us on "Submit a property" (shown in the lead as "Submitted property details"). */
@@ -31,9 +34,11 @@ export type LeadInput = {
   locale: string
   /** Hidden field: people never see or fill it, simple bots do */
   website?: string
+  /** Cloudflare Turnstile token from the form's bot check */
+  botToken?: string
 }
 
-export type LeadResult = { ok: true } | { ok: false; error: 'invalid' | 'failed' }
+export type LeadResult = { ok: true } | { ok: false; error: 'invalid' | 'failed' | 'botCheck' | 'tooMany' }
 
 const clip = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '')
 const positive = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : undefined)
@@ -51,9 +56,10 @@ function cleanDetails(d: SubmittedProperty | undefined): SubmittedProperty | und
 }
 
 /**
- * Saves a contact or viewing request as a Lead (Admin → Clients → Leads). Runs on the server, so it
- * re-checks everything the browser checked and writes with the Local API; the public REST API
- * can't create leads.
+ * Saves a contact or viewing request as a Lead (Admin → Clients → Leads) and emails it to the office.
+ * Runs on the server, so it re-checks everything the browser checked and writes with the Local API;
+ * the public REST API can't create leads. Spam checks: the honeypot, Turnstile and a per-visitor
+ * limit (src/lib/spam.ts).
  */
 export async function submitLead(input: LeadInput): Promise<LeadResult> {
   // Bots that fill the hidden field get a normal-looking success and nothing is stored
@@ -73,8 +79,14 @@ export async function submitLead(input: LeadInput): Promise<LeadResult> {
     if (!details) return { ok: false, error: 'invalid' }
   } else if (!message) return { ok: false, error: 'invalid' }
 
+  const h = await headers()
+  const ip = clientIp(h)
+  if (!(await verifyBotCheck(input.botToken, ip))) return { ok: false, error: 'botCheck' }
+
   try {
     const payload = await getPayload({ config })
+    const ipHash = hashIp(ip)
+    if (await isRateLimited(payload, ip, ipHash)) return { ok: false, error: 'tooMany' }
 
     let property: number | undefined
     if (input.propertyCode) {
@@ -88,7 +100,9 @@ export async function submitLead(input: LeadInput): Promise<LeadResult> {
       property = found.docs[0]?.id
     }
 
-    await payload.create({
+    const locale = isLocale(input.locale) ? input.locale : undefined
+    const pageUrl = clip(h.get('referer'), 500) || undefined
+    const lead = await payload.create({
       collection: 'leads',
       data: {
         kind,
@@ -99,12 +113,19 @@ export async function submitLead(input: LeadInput): Promise<LeadResult> {
         message: message || undefined,
         property,
         details,
-        locale: isLocale(input.locale) ? input.locale : undefined,
-        pageUrl: clip((await headers()).get('referer'), 500) || undefined,
+        locale,
+        pageUrl,
+        ipHash,
       },
       // Visitors aren't logged in; this server code is the only way to create a lead
       overrideAccess: true,
     })
+
+    // Email the office after the visitor already got the answer, so a slow mail API never delays the form
+    const origin = `${h.get('x-forwarded-proto') ?? 'https'}://${h.get('host')}`
+    const propertyCode = property ? Number(input.propertyCode) : undefined
+    after(() => sendLeadEmail({ id: lead.id, kind, name, phone, email: email || undefined, message: message || undefined, propertyCode, details, locale, pageUrl }, origin))
+
     return { ok: true }
   } catch (err) {
     console.error('submitLead failed', err)

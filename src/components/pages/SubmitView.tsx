@@ -4,7 +4,8 @@ import { useRef, useState, useTransition, type FormEvent } from "react"
 import { MessageCircle } from "lucide-react"
 import { submitLead } from "@/app/actions/leads"
 import { useT } from "@/i18n/client"
-import { FormSuccess } from "@/components/forms/ContactForm"
+import { useBotCheck } from "@/components/forms/bot-check"
+import { FormSuccess, leadErrorText } from "@/components/forms/ContactForm"
 import { focusFirstError, isNumber, isPhone, SelectField, TextArea, TextField } from "@/components/forms/fields"
 import { TYPES } from "@/lib/filters"
 import { REGION_NAMES } from "@/lib/regions"
@@ -34,8 +35,9 @@ export function SubmitView({ districts }: { districts: ListingDistrict[] }) {
   const [v, setV] = useState<Values>(INITIAL)
   const [errors, setErrors] = useState<Partial<Record<keyof Values, string>>>({})
   const [sent, setSent] = useState(false)
-  const [failed, setFailed] = useState(false)
+  const [failed, setFailed] = useState<string | null>(null)
   const [sending, startSending] = useTransition()
+  const { widget, getToken } = useBotCheck(lang)
 
   const set = (k: keyof Values) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setV((x) => ({ ...x, [k]: e.target.value }))
@@ -56,7 +58,7 @@ export function SubmitView({ districts }: { districts: ListingDistrict[] }) {
     setErrors(er)
     if (Object.keys(er).length) return focusFirstError(formRef.current)
     const website = new FormData(e.currentTarget as HTMLFormElement).get("website")
-    setFailed(false)
+    setFailed(null)
     startSending(async () => {
       const res = await submitLead({
         kind: "submit",
@@ -74,8 +76,9 @@ export function SubmitView({ districts }: { districts: ListingDistrict[] }) {
           priceUsd: toNumber(v.price),
         },
         website: typeof website === "string" ? website : undefined,
+        botToken: await getToken(),
       })
-      if (!res.ok) return setFailed(true)
+      if (!res.ok) return setFailed(leadErrorText(res.error, t))
       setSent(true)
       window.scrollTo({ top: 0, behavior: "smooth" })
     })
@@ -164,9 +167,10 @@ export function SubmitView({ districts }: { districts: ListingDistrict[] }) {
 
             {/* Honeypot: hidden from people and screen readers; bots that fill it are ignored by the server */}
             <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="pointer-events-none absolute top-0 left-0 size-px overflow-hidden opacity-0" />
+            {widget}
             {failed && (
               <p role="alert" className="text-sm text-destructive">
-                {t.form.sendFailed}
+                {failed}
               </p>
             )}
             <div className="flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">

@@ -1,6 +1,7 @@
 import * as migration_20261106_172835_initial from './20261106_172835_initial';
 import * as migration_20261107_162125_content_model from './20261107_162125_content_model';
 import * as migration_20261111_133018_home_page from './20261111_133018_home_page';
+import * as migration_20261111_133757_lead_ip_hash from './20261111_133757_lead_ip_hash';
 
 export const migrations = [
   {
@@ -16,6 +17,11 @@ export const migrations = [
   {
     up: migration_20261111_133018_home_page.up,
     down: migration_20261111_133018_home_page.down,
-    name: '20261111_133018_home_page'
+    name: '20261111_133018_home_page',
+  },
+  {
+    up: migration_20261111_133757_lead_ip_hash.up,
+    down: migration_20261111_133757_lead_ip_hash.down,
+    name: '20261111_133757_lead_ip_hash'
   },
 ];

@@ -2,11 +2,20 @@
 
 import { useRef, useState, useTransition, type FormEvent } from "react"
 import { CheckCircle2 } from "lucide-react"
-import { submitLead } from "@/app/actions/leads"
+import { submitLead, type LeadResult } from "@/app/actions/leads"
 import { useT } from "@/i18n/client"
+import type { Dict } from "@/i18n/dictionaries"
+import { useBotCheck } from "./bot-check"
 import { focusFirstError, isEmail, isPhone, TextArea, TextField } from "./fields"
 
 type Values = { name: string; phone: string; email: string; message: string }
+
+/** The message shown under a form when the server refused or failed to save it. */
+export function leadErrorText(error: Extract<LeadResult, { ok: false }>["error"], t: Dict) {
+  if (error === "botCheck") return t.form.botCheck
+  if (error === "tooMany") return t.form.tooMany
+  return t.form.sendFailed
+}
 
 /** Success panel shared by all forms. */
 export function FormSuccess({ title, body, action }: { title: string; body: string; action?: React.ReactNode }) {
@@ -46,8 +55,9 @@ export function ContactForm({
   const [values, setValues] = useState<Values>({ name: "", phone: "", email: "", message: defaultMessage })
   const [errors, setErrors] = useState<Partial<Record<keyof Values, string>>>({})
   const [sent, setSent] = useState(false)
-  const [failed, setFailed] = useState(false)
+  const [failed, setFailed] = useState<string | null>(null)
   const [sending, startSending] = useTransition()
+  const { widget, getToken } = useBotCheck(lang)
 
   const set = (k: keyof Values) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setValues((v) => ({ ...v, [k]: e.target.value }))
@@ -65,7 +75,7 @@ export function ContactForm({
     setErrors(er)
     if (Object.keys(er).length) return focusFirstError(formRef.current)
     const website = new FormData(e.currentTarget as HTMLFormElement).get("website")
-    setFailed(false)
+    setFailed(null)
     startSending(async () => {
       const res = await submitLead({
         kind,
@@ -76,9 +86,10 @@ export function ContactForm({
         email: withEmail ? values.email : undefined,
         message: values.message,
         website: typeof website === "string" ? website : undefined,
+        botToken: await getToken(),
       })
       if (res.ok) setSent(true)
-      else setFailed(true)
+      else setFailed(leadErrorText(res.error, t))
     })
   }
 
@@ -103,9 +114,10 @@ export function ContactForm({
       <TextArea label={t.form.message} value={values.message} onChange={set("message")} error={errors.message} />
       {/* Honeypot: hidden from people and screen readers; bots that fill it are ignored by the server */}
       <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="pointer-events-none absolute top-0 left-0 size-px overflow-hidden opacity-0" />
+      {widget}
       {failed && (
         <p role="alert" className="text-sm text-destructive">
-          {t.form.sendFailed}
+          {failed}
         </p>
       )}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-1">

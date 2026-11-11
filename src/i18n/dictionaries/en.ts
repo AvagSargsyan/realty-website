@@ -208,6 +208,8 @@ const en = {
     successBody: "We’ve received your message and will call you back soon.",
     demoNote: "We use your details only to reply to you.",
     sendFailed: "Sorry, your message couldn’t be sent. Please try again or call us.",
+    botCheck: "We couldn’t confirm you’re not a robot. Please reload the page and try again, or call us.",
+    tooMany: "You’ve sent several messages in a short time. Please wait a few minutes or call us.",
     close: "Close",
   },
   request: {

@@ -106,5 +106,12 @@ export const Leads: CollectionConfig = {
       label: label('Internal notes', 'Ներքին նշումներ', 'Внутренние заметки'),
       admin: { description: label('Not visible to the client', 'Հաճախորդին տեսանելի չէ', 'Клиент не видит') },
     },
+    {
+      // Salted hash of the sender's IP address, only for the per-visitor submission limit (src/lib/spam.ts)
+      name: 'ipHash',
+      type: 'text',
+      index: true,
+      admin: { hidden: true },
+    },
   ],
 }

@@ -359,6 +359,7 @@ export interface Lead {
    * Not visible to the client
    */
   notes?: string | null;
+  ipHash?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -597,6 +598,7 @@ export interface LeadsSelect<T extends boolean = true> {
   locale?: T;
   pageUrl?: T;
   notes?: T;
+  ipHash?: T;
   updatedAt?: T;
   createdAt?: T;
 }
