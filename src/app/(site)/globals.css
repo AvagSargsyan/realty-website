@@ -229,3 +229,23 @@
 .scroll-nudge {
   animation: scroll-nudge 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
+
+/* Navigation progress bar (src/components/providers/navigation-progress.tsx). It appears only when a
+   navigation takes longer than 150 ms, then creeps towards 90 % until the next page is ready. */
+@keyframes nav-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(0.9); }
+}
+.nav-progress {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 100;
+  height: 3px;
+  background: var(--color-brand-bright);
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+.nav-progress[data-active] {
+  animation: nav-progress 8s cubic-bezier(0.08, 0.7, 0.2, 1) 150ms both;
+}

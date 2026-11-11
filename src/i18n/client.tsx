@@ -2,6 +2,7 @@
 
 import NextLink from 'next/link'
 import { createContext, useCallback, useContext, type ComponentProps, type ReactNode } from 'react'
+import { LinkPending } from '@/components/providers/navigation-progress'
 import type { Lang, Localized } from '@/types'
 import { DICTS } from './dictionaries'
 
@@ -32,8 +33,16 @@ export function localizedHref(href: string, locale: Lang) {
   return href === '/' ? `/${locale}` : `/${locale}${href}`
 }
 
-/** next/link that keeps the visitor in the current language. Write hrefs without the locale. */
-export function Link({ href, ...props }: Omit<ComponentProps<typeof NextLink>, 'href'> & { href: string }) {
+/**
+ * next/link that keeps the visitor in the current language. Write hrefs without the locale.
+ * It also reports its pending state to the navigation progress bar.
+ */
+export function Link({ href, children, ...props }: Omit<ComponentProps<typeof NextLink>, 'href'> & { href: string }) {
   const locale = useLocale()
-  return <NextLink href={localizedHref(href, locale)} {...props} />
+  return (
+    <NextLink href={localizedHref(href, locale)} {...props}>
+      {children}
+      <LinkPending />
+    </NextLink>
+  )
 }

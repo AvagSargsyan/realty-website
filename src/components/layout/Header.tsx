@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState, type FormEvent } from "react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
+import { useNavigate } from "@/components/providers/navigation-progress"
 import { Heart, Menu, Phone, Search, Sparkles } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { Link, localizedHref, useT } from "@/i18n/client"
@@ -31,14 +32,14 @@ function useScrolled(threshold = 24) {
 
 function HeaderSearch({ className, overlay = false, id = "header-search" }: { className?: string; overlay?: boolean; id?: string }) {
   const { t, lang } = useT()
-  const router = useRouter()
+  const { navigate } = useNavigate()
   const [currency] = useCurrency()
   const [q, setQ] = useState("")
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
     // `cur`: the currency on screen, for prices typed without a sign (the server parses the text)
     const query = q.trim() ? `/listings?q=${encodeURIComponent(q.trim())}&cur=${currency}` : "/listings"
-    router.push(localizedHref(query, lang))
+    navigate(localizedHref(query, lang))
   }
   return (
     <form role="search" onSubmit={onSubmit} className={cn("relative", className)}>

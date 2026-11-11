@@ -2,7 +2,8 @@
 
 import { Check, ChevronDown, Globe, Monitor, Moon, Sun } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
+import { useNavigate } from "@/components/providers/navigation-progress"
 import { useT } from "@/i18n/client"
 import { useCurrency, useHydrated, useTheme } from "@/components/providers/preferences"
 import type { Currency, Lang, Theme } from "@/types"
@@ -27,13 +28,13 @@ export const CURRENCIES: { value: Currency; symbol: string }[] = [
 
 /** Switch language by moving to the same page under another locale: /hy/listings?x=1 -> /en/listings?x=1 */
 function useSetLang() {
-  const router = useRouter()
+  const { navigate } = useNavigate()
   const pathname = usePathname()
   return (next: Lang) => {
     const rest = pathname.split("/").slice(2).join("/")
     // Remembered for `/`, which the proxy redirects to the visitor's language
     document.cookie = `avenue.lang=${next}; path=/; max-age=31536000; samesite=lax`
-    router.push(`/${next}${rest ? `/${rest}` : ""}${window.location.search}`)
+    navigate(`/${next}${rest ? `/${rest}` : ""}${window.location.search}`)
   }
 }
 

@@ -1,6 +1,7 @@
 import 'server-only'
 
 import config from '@payload-config'
+import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 import { cache } from 'react'
 
@@ -18,8 +19,18 @@ export type SiteSettings = {
   rates: { USD: number; AMD: number; RUB: number }
 }
 
-/** Loaded once per request/prerender (React cache), at build time for static pages. */
-export const getSiteSettings = cache(async (locale: Lang): Promise<SiteSettings> => {
+/** Cache tag cleared when the admin saves anything (see revalidateSite). */
+export const SETTINGS_TAG = 'site-settings'
+
+/**
+ * Loaded once per request (React cache) and kept in the Data Cache between requests, so pages
+ * rendered per request (listings) don't query the database for it every time.
+ */
+export const getSiteSettings = cache(
+  unstable_cache(loadSiteSettings, ['site-settings'], { tags: [SETTINGS_TAG], revalidate: 3600 }),
+)
+
+async function loadSiteSettings(locale: Lang): Promise<SiteSettings> {
   const payload = await getPayload({ config })
   const s = await payload.findGlobal({ slug: 'site-settings', locale, depth: 0 })
   return {
@@ -36,4 +47,4 @@ export const getSiteSettings = cache(async (locale: Lang): Promise<SiteSettings>
     },
     rates: { USD: 1, AMD: s.rates.amd, RUB: s.rates.rub },
   }
-})
+}

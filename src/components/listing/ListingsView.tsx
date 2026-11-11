@@ -1,10 +1,10 @@
 "use client"
 
-import { useTransition } from "react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { motion } from "motion/react"
-import { LayoutGrid, Rows3, SearchX, SlidersHorizontal, X } from "lucide-react"
+import { LayoutGrid, LoaderCircle, Rows3, SearchX, SlidersHorizontal, X } from "lucide-react"
 import { useT } from "@/i18n/client"
+import { useNavigate } from "@/components/providers/navigation-progress"
 import { usePrice } from "@/components/providers/usePrice"
 import { FilterPanel } from "@/components/filters/FilterPanel"
 import { ListingCard } from "@/components/listing/ListingCard"
@@ -98,16 +98,12 @@ type Props = {
  */
 export function ListingsView({ filters, sort, view, page, visible, total, counts, districts }: Props) {
   const { t } = useT()
-  const router = useRouter()
   const pathname = usePathname()
   const params = useSearchParams()
-  const [pending, startTransition] = useTransition()
+  const { navigate, pending } = useNavigate()
   const chips = useChips(filters, districts)
 
-  const go = (p: URLSearchParams, replace = false) => {
-    const href = p.size ? `${pathname}?${p}` : pathname
-    startTransition(() => (replace ? router.replace(href, { scroll: false }) : router.push(href, { scroll: false })))
-  }
+  const go = (p: URLSearchParams, replace = false) => navigate(p.size ? `${pathname}?${p}` : pathname, { replace, scroll: false })
   const setFilters = (f: Filters) => go(writeFilters(f, params))
   const setParam = (key: string, value: string | null, replace = false) => {
     const p = new URLSearchParams(params)
@@ -165,7 +161,8 @@ export function ListingsView({ filters, sort, view, page, visible, total, counts
   const loadMore = visible.length < results.length && (
     <div className="mt-12 flex flex-col items-center gap-3">
       <p className="text-sm text-muted-ink">{t.listings.showing(visible.length, results.length)}</p>
-      <button type="button" onClick={() => setParam("page", String(page + 1), true)} className="btn-secondary">
+      <button type="button" onClick={() => setParam("page", String(page + 1), true)} aria-busy={pending} className="btn-secondary">
+        {pending && <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />}
         {t.listings.loadMore}
       </button>
     </div>

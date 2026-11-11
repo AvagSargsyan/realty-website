@@ -1,7 +1,7 @@
 "use client"
 
 import { useId, useState, type FormEvent, type ReactNode } from "react"
-import { useRouter } from "next/navigation"
+import { useNavigate } from "@/components/providers/navigation-progress"
 import { ChevronDown, Search } from "lucide-react"
 import { localizedHref, useT } from "@/i18n/client"
 import { usePrice } from "@/components/providers/usePrice"
@@ -33,8 +33,8 @@ const selectCls =
 export function SearchBox({ className, districts }: { className?: string; districts: ListingDistrict[] }) {
   const { t, lang } = useT()
   const { price } = usePrice()
-  const router = useRouter()
-  const navigate = (href: string) => router.push(localizedHref(href, lang))
+  const { navigate: go } = useNavigate()
+  const navigate = (href: string) => go(localizedHref(href, lang))
   const uid = useId()
   const [deal, setDeal] = useState<Deal>("sale")
   const [type, setType] = useState<PropertyType | "">("")

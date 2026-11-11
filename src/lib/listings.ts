@@ -62,17 +62,26 @@ export function whereFromQuery(q: ListingQuery): Where {
   return and.length ? { and } : {}
 }
 
-/** Districts in admin order, for the search box and filters. */
-export const getDistricts = cache(async (locale: Lang): Promise<ListingDistrict[]> => {
-  const payload = await getClient()
-  const res = await payload.find({ collection: 'districts', locale, fallbackLocale: 'hy', limit: 100, sort: 'order', depth: 0 })
-  return res.docs.map(toDistrict)
-})
-
-/* ---------- Listings page: a cached index of every published listing ---------- */
-
 /** Cache tag cleared whenever listings or districts change in the admin (see revalidateSite). */
 export const LISTINGS_TAG = 'listings'
+
+/**
+ * Districts in admin order, for the search box and filters. Kept in the Data Cache because the
+ * listings page is rendered on every request (its filters are in the URL).
+ */
+export const getDistricts = cache(
+  unstable_cache(
+    async (locale: Lang): Promise<ListingDistrict[]> => {
+      const payload = await getClient()
+      const res = await payload.find({ collection: 'districts', locale, fallbackLocale: 'hy', limit: 100, sort: 'order', depth: 0 })
+      return res.docs.map(toDistrict)
+    },
+    ['districts'],
+    { tags: [LISTINGS_TAG], revalidate: 3600 },
+  ),
+)
+
+/* ---------- Listings page: a cached index of every published listing ---------- */
 
 type AllLocales<T> = { hy?: T | null; en?: T | null; ru?: T | null } | T | null | undefined
 const allText = (v: AllLocales<string>) =>
@@ -167,19 +176,28 @@ export function similarCodes(rows: IndexRow[], l: Pick<Listing, 'id' | 'deal' | 
     .map((s) => s.x.id)
 }
 
-/** Full card data for the given public codes, in that order. */
-export async function findByCodes(locale: Lang, codes: number[]): Promise<Listing[]> {
-  if (!codes.length) return []
-  const payload = await getClient()
-  const res = await payload.find({
-    collection: 'properties',
-    where: { and: [ACTIVE, { code: { in: codes } }] },
-    locale,
-    fallbackLocale: 'hy',
-    depth: 1,
-    limit: codes.length,
-    overrideAccess: false,
-  })
-  const byCode = new Map(res.docs.map((p) => [p.code, toListing(p, CARD_PHOTOS)]))
-  return codes.map((c) => byCode.get(c)).filter((l): l is Listing => Boolean(l))
-}
+/**
+ * Full card data for the given public codes, in that order. Cached per language and list of codes
+ * (the arguments are part of the cache key), so a repeated filter/page combination skips the
+ * database; any admin change clears it with the rest of LISTINGS_TAG.
+ */
+export const findByCodes = unstable_cache(
+  async (locale: Lang, codes: number[]): Promise<Listing[]> => {
+    if (!codes.length) return []
+    const payload = await getClient()
+    const res = await payload.find({
+      collection: 'properties',
+      where: { and: [ACTIVE, { code: { in: codes } }] },
+      locale,
+      fallbackLocale: 'hy',
+      depth: 1,
+      limit: codes.length,
+      pagination: false,
+      overrideAccess: false,
+    })
+    const byCode = new Map(res.docs.map((p) => [p.code, toListing(p, CARD_PHOTOS)]))
+    return codes.map((c) => byCode.get(c)).filter((l): l is Listing => Boolean(l))
+  },
+  ['cards-by-code'],
+  { tags: [LISTINGS_TAG], revalidate: 3600 },
+)

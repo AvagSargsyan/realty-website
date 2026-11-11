@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 
 import { Footer } from '@/components/layout/Footer'
 import { Header, HeaderWithSearch } from '@/components/layout/Header'
+import { NavigationProgress } from '@/components/providers/navigation-progress'
 import { SettingsProvider } from '@/components/providers/SettingsProvider'
 import { ThemeSync } from '@/components/providers/ThemeSync'
 import { ToastProvider } from '@/components/ui/toast'
@@ -13,8 +14,9 @@ import { isLocale, LOCALES } from '@/i18n/config'
 import { getSiteSettings } from '@/lib/settings'
 import '../globals.css'
 
-// Only /hy, /en and /ru exist; every page under them is prerendered per language.
-export const dynamicParams = false
+// Every page under /hy, /en and /ru is prerendered per language. Other locales get a 404 from the
+// isLocale check below. Not `dynamicParams = false`: with it, a page whose cache the admin cleared
+// (revalidatePath) answered 404 instead of being rendered again.
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }))
 }
@@ -46,6 +48,7 @@ export default async function SiteLayout({ children, params }: LayoutProps<'/[lo
           <SettingsProvider value={settings}>
             <ToastProvider>
               <ThemeSync />
+              <NavigationProgress />
               <div className="flex min-h-svh flex-col">
                 <Suspense fallback={<Header />}>
                   <HeaderWithSearch />
