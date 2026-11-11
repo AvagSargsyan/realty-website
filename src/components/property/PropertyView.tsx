@@ -235,10 +235,7 @@ export function PropertyView({ listing: l, similar, similarTotal }: { listing: L
 
       {similar.length > 0 && (
         <CategoryRow
-          title={t.property.similar}
-          items={similar}
-          total={similarTotal}
-          viewAllHref={listingsHref({ deal: l.deal, type: l.type })}
+          rail={{ title: t.property.similar, items: similar, total: similarTotal, viewAllHref: listingsHref({ deal: l.deal, type: l.type }) }}
           className="pb-28 lg:pb-24"
         />
       )}

@@ -5,19 +5,20 @@ import { motion } from "motion/react"
 import { ArrowRight, BadgeCheck, Handshake, KeyRound, Phone, Quote, Star } from "lucide-react"
 import { Link, useT } from "@/i18n/client"
 import { useSettings } from "@/components/providers/SettingsProvider"
+import type { HomeContent } from "@/lib/home"
 import { listingsHref, type Tile } from "@/lib/search"
 import { cn } from "@/lib/utils"
 import { fadeUp, SectionHeading } from "./Section"
 
 /* ---------- Popular-search tiles (counts and covers come from the server, see the home page) ---------- */
 
-export function PopularTiles({ tiles }: { tiles: Tile[] }) {
+export function PopularTiles({ tiles, title }: { tiles: Tile[]; title: string }) {
   const { t } = useT()
   const id = useId()
 
   return (
     <section aria-labelledby={`${id}-title`} className="container-page py-16 md:py-24">
-      <SectionHeading id={`${id}-title`} title={t.home.popular.title} link={{ to: listingsHref(), label: t.home.viewAll }} />
+      <SectionHeading id={`${id}-title`} title={title}link={{ to: listingsHref(), label: t.home.viewAll }} />
       <ul className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 md:gap-x-6 xl:grid-cols-6">
         {tiles.map((tile, i) => (
           <motion.li
@@ -59,18 +60,17 @@ export function PopularTiles({ tiles }: { tiles: Tile[] }) {
 const SERVICE_LINKS = [listingsHref({ deal: "sale" }), "/submit", listingsHref({ deal: "rent" })]
 const SERVICE_ICONS = [KeyRound, BadgeCheck, Handshake]
 
-export function Services() {
-  const { t } = useT()
+export function Services({ content }: { content: HomeContent["services"] }) {
   const id = useId()
   return (
     <section aria-labelledby={`${id}-title`} className="container-page py-16 md:py-24">
-      <SectionHeading id={`${id}-title`} title={t.home.services.title} className="border-b border-line pb-5" />
+      <SectionHeading id={`${id}-title`} title={content.title} className="border-b border-line pb-5" />
       <div className="grid md:grid-cols-3">
-        {t.home.services.items.map((s, i) => {
+        {content.items.map((s, i) => {
           const Icon = SERVICE_ICONS[i]
           return (
             <motion.div
-              key={s.title}
+              key={i}
               {...fadeUp}
               transition={{ ...fadeUp.transition, delay: i * 0.08 }}
               className="flex flex-col border-line py-8 md:border-l md:px-8 md:py-4 border-t first:border-t-0 md:border-t-0 md:first:border-l-0 md:first:pl-0"
@@ -159,8 +159,7 @@ export function Reviews() {
 }
 
 /* ---------- Call to action: sell with us ---------- */
-export function SellCta() {
-  const { t } = useT()
+export function SellCta({ content }: { content: HomeContent["cta"] }) {
   const settings = useSettings()
   const id = useId()
   return (
@@ -173,17 +172,17 @@ export function SellCta() {
         <div aria-hidden="true" className="absolute top-0 left-6 h-1 w-24 bg-brand-bright md:left-14" />
         <div className="grid items-center gap-8 md:grid-cols-[1.4fr_1fr]">
           <div>
-            <h2 id={`${id}-title`} className="text-3xl leading-tight font-extrabold md:text-4xl">{t.home.cta.title}</h2>
-            <p className="mt-4 max-w-xl text-lg text-white/85">{t.home.cta.body}</p>
+            <h2 id={`${id}-title`} className="text-3xl leading-tight font-extrabold md:text-4xl">{content.title}</h2>
+            <p className="mt-4 max-w-xl text-lg text-white/85">{content.body}</p>
           </div>
           <div className="flex flex-wrap gap-3 md:justify-end">
             <Link href="/submit" className="btn-accent">
-              {t.home.cta.primary}
+              {content.primary}
               <ArrowRight className="size-4" aria-hidden="true" />
             </Link>
             <a href={settings.phoneHref} className="btn border border-white/40 text-white hover:border-white hover:bg-white/10">
               <Phone className="size-4" aria-hidden="true" />
-              {t.home.cta.secondary}
+              {content.secondary}
             </a>
           </div>
         </div>

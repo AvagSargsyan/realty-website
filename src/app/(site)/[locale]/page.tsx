@@ -4,9 +4,9 @@ import { Hero } from '@/components/home/Hero'
 import { PopularTiles, Reviews, SellCta, Services } from '@/components/home/HomeSections'
 import { CategoryRow, ExclusiveCarousel } from '@/components/home/ListingRails'
 import { isLocale } from '@/i18n/config'
-import { DICTS } from '@/i18n/dictionaries'
+import { getHomeContent } from '@/lib/home'
 import { findListings, getDistricts, whereFromQuery } from '@/lib/listings'
-import { listingsHref, TILES, type Tile } from '@/lib/search'
+import { TILES, type Tile } from '@/lib/search'
 
 /** Popular-search tiles: live counts, and a different cover photo for each tile (as in the demo). */
 async function getTiles(locale: Parameters<typeof findListings>[0]): Promise<Tile[]> {
@@ -21,42 +21,23 @@ async function getTiles(locale: Parameters<typeof findListings>[0]): Promise<Til
   })
 }
 
-/** Home page, same sections and order as the demo, fed by published listings. */
+/** Home page, same sections and order as the demo. Texts and listing rows come from the Home page global. */
 export default async function HomePage({ params }: PageProps<'/[locale]'>) {
   const { locale } = await params
   if (!isLocale(locale)) notFound()
-  const t = DICTS[locale]
 
-  const [districts, tiles, exclusive, fresh, rent] = await Promise.all([
-    getDistricts(locale),
-    getTiles(locale),
-    findListings(locale, whereFromQuery({ tag: 'exclusive' }), { limit: 12 }),
-    findListings(locale, whereFromQuery({ tag: 'new' }), { limit: 8 }),
-    findListings(locale, whereFromQuery({ deal: 'rent' }), { limit: 8 }),
-  ])
+  const [districts, tiles, home] = await Promise.all([getDistricts(locale), getTiles(locale), getHomeContent(locale)])
 
   return (
     <>
-      <Hero districts={districts} />
-      <PopularTiles tiles={tiles} />
-      <ExclusiveCarousel items={exclusive.docs} total={exclusive.total} viewAllHref={listingsHref({ tag: 'exclusive' })} />
-      <CategoryRow
-        title={t.home.rows.newest}
-        items={fresh.docs}
-        total={fresh.total}
-        viewAllHref={listingsHref({ tag: 'new' })}
-        className="pt-16 md:pt-24"
-      />
-      <CategoryRow
-        title={t.home.rows.rent}
-        items={rent.docs}
-        total={rent.total}
-        viewAllHref={listingsHref({ deal: 'rent' })}
-        className="pt-16 md:pt-20"
-      />
-      <Services />
+      <Hero districts={districts} content={home.hero} />
+      <PopularTiles tiles={tiles} title={home.popularTitle} />
+      <ExclusiveCarousel rail={home.exclusive} />
+      <CategoryRow rail={home.row1} className="pt-16 md:pt-24" />
+      <CategoryRow rail={home.row2} className="pt-16 md:pt-20" />
+      <Services content={home.services} />
       <Reviews />
-      <SellCta />
+      <SellCta content={home.cta} />
     </>
   )
 }

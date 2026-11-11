@@ -15,6 +15,7 @@ import { Leads } from './collections/Leads'
 import { Media } from './collections/Media'
 import { Properties } from './collections/Properties'
 import { Users } from './collections/Users'
+import { HomePage } from './globals/HomePage'
 import { SiteSettings } from './globals/SiteSettings'
 
 const filename = fileURLToPath(import.meta.url)
@@ -35,7 +36,7 @@ export default buildConfig({
   },
   // Order = order in the admin sidebar
   collections: [Properties, Districts, Agents, Media, Leads, Users],
-  globals: [SiteSettings],
+  globals: [HomePage, SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

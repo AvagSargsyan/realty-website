@@ -96,9 +96,11 @@ export interface Config {
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('hy' | 'en' | 'ru') | ('hy' | 'en' | 'ru')[];
   globals: {
+    'home-page': HomePage;
     'site-settings': SiteSetting;
   };
   globalsSelect: {
+    'home-page': HomePageSelect<false> | HomePageSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
   };
   locale: 'hy' | 'en' | 'ru';
@@ -665,6 +667,74 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-page".
+ */
+export interface HomePage {
+  id: number;
+  hero?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    intro?: string | null;
+    photoTall?: (number | null) | Media;
+    photoTop?: (number | null) | Media;
+    photoBottom?: (number | null) | Media;
+  };
+  popularTitle?: string | null;
+  exclusive: {
+    eyebrow?: string | null;
+    title?: string | null;
+    intro?: string | null;
+    /**
+     * Newest first. "Picked by hand" shows the listings below in their order.
+     */
+    source: 'exclusive' | 'new' | 'rent' | 'sale' | 'penthouse' | 'newConstruction' | 'manual';
+    picks?: (number | Property)[] | null;
+  };
+  row1: {
+    title?: string | null;
+    /**
+     * Newest first. "Picked by hand" shows the listings below in their order.
+     */
+    source: 'exclusive' | 'new' | 'rent' | 'sale' | 'penthouse' | 'newConstruction' | 'manual';
+    picks?: (number | Property)[] | null;
+  };
+  row2: {
+    title?: string | null;
+    /**
+     * Newest first. "Picked by hand" shows the listings below in their order.
+     */
+    source: 'exclusive' | 'new' | 'rent' | 'sale' | 'penthouse' | 'newConstruction' | 'manual';
+    picks?: (number | Property)[] | null;
+  };
+  services?: {
+    title?: string | null;
+    buy?: {
+      title?: string | null;
+      body?: string | null;
+      cta?: string | null;
+    };
+    sell?: {
+      title?: string | null;
+      body?: string | null;
+      cta?: string | null;
+    };
+    rent?: {
+      title?: string | null;
+      body?: string | null;
+      cta?: string | null;
+    };
+  };
+  cta?: {
+    title?: string | null;
+    body?: string | null;
+    primary?: string | null;
+    secondary?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings".
  */
 export interface SiteSetting {
@@ -692,6 +762,83 @@ export interface SiteSetting {
   };
   updatedAt?: string | null;
   createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-page_select".
+ */
+export interface HomePageSelect<T extends boolean = true> {
+  hero?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        intro?: T;
+        photoTall?: T;
+        photoTop?: T;
+        photoBottom?: T;
+      };
+  popularTitle?: T;
+  exclusive?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        intro?: T;
+        source?: T;
+        picks?: T;
+      };
+  row1?:
+    | T
+    | {
+        title?: T;
+        source?: T;
+        picks?: T;
+      };
+  row2?:
+    | T
+    | {
+        title?: T;
+        source?: T;
+        picks?: T;
+      };
+  services?:
+    | T
+    | {
+        title?: T;
+        buy?:
+          | T
+          | {
+              title?: T;
+              body?: T;
+              cta?: T;
+            };
+        sell?:
+          | T
+          | {
+              title?: T;
+              body?: T;
+              cta?: T;
+            };
+        rent?:
+          | T
+          | {
+              title?: T;
+              body?: T;
+              cta?: T;
+            };
+      };
+  cta?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        primary?: T;
+        secondary?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

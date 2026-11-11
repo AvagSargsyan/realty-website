@@ -5,7 +5,7 @@ import { motion } from "motion/react"
 import { useT } from "@/i18n/client"
 import { ListingCard } from "@/components/listing/ListingCard"
 import { cn } from "@/lib/utils"
-import type { Listing } from "@/types"
+import type { HomeContent, HomeRail } from "@/lib/home"
 import { RailButtons, SectionHeading, useRail } from "./Section"
 
 /* Scroll track that bleeds to the screen edge inside .container-page, with matching snap padding. */
@@ -13,19 +13,21 @@ const track =
   "no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 overflow-x-auto overflow-y-hidden overscroll-x-contain px-4 pt-1 pb-6 md:-mx-8 md:scroll-px-8 md:px-8"
 
 /** "Exclusive" carousel on a dark petrol band (the section uses the dark token set in both themes). */
-export function ExclusiveCarousel({ items, total, viewAllHref }: { items: Listing[]; total: number; viewAllHref: string }) {
+export function ExclusiveCarousel({ rail }: { rail: HomeContent["exclusive"] }) {
   const { t } = useT()
+  const { items, total, viewAllHref } = rail
   const { ref: trackRef, edges, scroll } = useRail()
   const id = useId()
+  if (!items.length) return null
   return (
     <section aria-labelledby={`${id}-title`} className="dark bg-surface py-16 text-ink md:py-24">
       <div className="container-page">
         <SectionHeading
           id={`${id}-title`}
-          eyebrow={t.home.exclusive.eyebrow}
-          title={t.home.exclusive.title}
-          intro={t.home.exclusive.intro}
-          link={{ to: viewAllHref, label: t.home.viewAllCount(total) }}
+          eyebrow={rail.eyebrow}
+          title={rail.title}
+          intro={rail.intro}
+          link={viewAllHref ? { to: viewAllHref, label: t.home.viewAllCount(total) } : undefined}
         >
           <RailButtons edges={edges} scroll={scroll} controls={`${id}-track`} />
         </SectionHeading>
@@ -49,16 +51,18 @@ export function ExclusiveCarousel({ items, total, viewAllHref }: { items: Listin
 }
 
 /** Blu Dot-style category row: heading + "View all (n)", then a horizontal row of cards with thin dividers. */
-export function CategoryRow({ title, items, total, viewAllHref, className }: { title: string; items: Listing[]; total: number; viewAllHref: string; className?: string }) {
+export function CategoryRow({ rail, className }: { rail: HomeRail; className?: string }) {
   const { t } = useT()
+  const { title, items, total, viewAllHref } = rail
   const { ref: trackRef, edges, scroll } = useRail()
   const id = useId()
+  if (!items.length) return null
   return (
     <section aria-labelledby={`${id}-title`} className={cn("container-page", className)}>
       <SectionHeading
         id={`${id}-title`}
         title={title}
-        link={{ to: viewAllHref, label: t.home.viewAllCount(total) }}
+        link={viewAllHref ? { to: viewAllHref, label: t.home.viewAllCount(total) } : undefined}
         className="border-b border-line pb-5 md:mb-8"
       >
         <RailButtons edges={edges} scroll={scroll} controls={`${id}-track`} />

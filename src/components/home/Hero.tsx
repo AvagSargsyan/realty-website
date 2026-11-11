@@ -5,7 +5,10 @@ import { motion } from "motion/react"
 import { ArrowDown } from "lucide-react"
 import { useT } from "@/i18n/client"
 import { cn } from "@/lib/utils"
-import type { ListingDistrict } from "@/types"
+import type { HomeContent } from "@/lib/home"
+import type { ListingDistrict, Photo } from "@/types"
+
+type HeroContent = HomeContent["hero"]
 import { SearchBox } from "./SearchBox"
 
 /*
@@ -26,11 +29,16 @@ const rise = (delay = 0) => ({
   transition: { duration: 0.6, delay, ease },
 })
 
-function Img({ id, className, sizes = "50vw" }: { id: string; className?: string; sizes?: string }) {
+/** A built-in hero photo, or one picked in the Home page global (Payload sizes 480 / 800 / 1600 px). */
+function Img({ id, photo, className, sizes = "50vw" }: { id: string; photo: Photo | null; className?: string; sizes?: string }) {
   return (
     <img
-      src={heroSrc(id, 1200)}
-      srcSet={`${heroSrc(id, 800)} 800w, ${heroSrc(id, 1200)} 1200w, ${heroSrc(id, 1800)} 1800w`}
+      src={photo ? photo.card : heroSrc(id, 1200)}
+      srcSet={
+        photo
+          ? `${photo.thumb} 480w, ${photo.card} 800w, ${photo.large} 1600w`
+          : `${heroSrc(id, 800)} 800w, ${heroSrc(id, 1200)} 1200w, ${heroSrc(id, 1800)} 1800w`
+      }
       sizes={sizes}
       alt=""
       aria-hidden="true"
@@ -42,19 +50,18 @@ function Img({ id, className, sizes = "50vw" }: { id: string; className?: string
 }
 
 /** Headline + search box, left side of the hero. */
-function HeroText({ className, districts }: { className?: string; districts: ListingDistrict[] }) {
-  const { t } = useT()
+function HeroText({ className, districts, content }: { className?: string; districts: ListingDistrict[]; content: HeroContent }) {
   return (
     <div className={cn("max-w-xl", className)}>
       <motion.p {...rise(0)} className="inline-flex items-center gap-2.5 text-xs font-semibold tracking-[0.22em] text-iris-ink uppercase">
         <span className="h-px w-8 bg-brand-bright" aria-hidden="true" />
-        {t.home.hero.eyebrow}
+        {content.eyebrow}
       </motion.p>
       <motion.h1 {...rise(0.06)} className="mt-5 text-4xl leading-[1.05] font-extrabold text-ink md:text-5xl xl:text-6xl">
-        {t.home.hero.title}
+        {content.title}
       </motion.h1>
       <motion.p {...rise(0.12)} className="mt-5 text-lg leading-relaxed text-muted-ink">
-        {t.home.hero.intro}
+        {content.intro}
       </motion.p>
       <motion.div {...rise(0.18)} className="mt-8">
         <SearchBox districts={districts} />
@@ -118,7 +125,7 @@ function ScrollCue() {
  * (one tall residential tower + a luxury villa and a modern apartment building stacked),
  * soft shadows, ruled lines behind and a short logo-orange bar.
  */
-export function Hero({ districts }: { districts: ListingDistrict[] }) {
+export function Hero({ districts, content }: { districts: ListingDistrict[]; content: HeroContent }) {
   const tiles = [
     { id: PHOTO_COPPER_GLASS, cls: "row-span-2 md:translate-y-8", pos: "object-[50%_center]" },
     { id: PHOTO_LUXURY_HOUSE, cls: "md:-translate-y-6", pos: "object-[40%_center]" },
@@ -128,7 +135,7 @@ export function Hero({ districts }: { districts: ListingDistrict[] }) {
     <section className="relative isolate overflow-hidden border-b border-line">
       <BgLines />
       <div className="container-page relative grid min-h-[580px] items-center gap-10 py-14 md:grid-cols-[1.05fr_1fr] md:py-0">
-        <HeroText districts={districts} className="relative z-10 md:pt-20 md:pb-32" />
+        <HeroText districts={districts} content={content} className="relative z-10 md:pt-20 md:pb-32" />
         <ScrollCue />
         <div className="relative md:my-14">
           <motion.div
@@ -148,7 +155,7 @@ export function Hero({ districts }: { districts: ListingDistrict[] }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.85, delay: 0.1 + i * 0.13, ease }}
               >
-                <Img id={tile.id} sizes="30vw" className={cn("transition-transform duration-700 ease-out group-hover:scale-[1.04]", tile.pos)} />
+                <Img id={tile.id} photo={content.photos[i] ?? null} sizes="30vw" className={cn("transition-transform duration-700 ease-out group-hover:scale-[1.04]", tile.pos)} />
               </motion.div>
             ))}
           </div>
