@@ -156,7 +156,8 @@ export function Gallery({ photos, title }: { photos: Photo[]; title: string }) {
           <div className="flex touch-pan-y">
             {photos.map((p, i) => (
               <button key={p.full} type="button" onClick={() => show(i)} aria-label={t.property.gallery.open(i + 1)} className="aspect-[4/3] min-w-0 flex-[0_0_100%]">
-                <img src={p.card} srcSet={`${p.thumb} 480w, ${p.card} 800w, ${p.large} 1600w`} sizes="100vw" alt={i === 0 ? title : ""} loading={i === 0 ? "eager" : "lazy"} draggable={false} className="size-full object-cover" />
+                {/* On tablets and up this carousel is hidden but its first image still loads: "1px" makes it the smallest file */}
+                <img src={p.card} srcSet={`${p.thumb} 480w, ${p.card} 800w, ${p.large} 1600w`} sizes="(min-width: 768px) 1px, 100vw" alt={i === 0 ? title : ""} loading={i === 0 ? "eager" : "lazy"} draggable={false} className="size-full object-cover" />
               </button>
             ))}
           </div>
@@ -179,10 +180,10 @@ export function Gallery({ photos, title }: { photos: Photo[]; title: string }) {
             <img
               src={i === 0 ? p.large : p.card}
               srcSet={i === 0 ? `${p.card} 800w, ${p.large} 1600w, ${p.full} 2000w` : `${p.thumb} 480w, ${p.card} 800w`}
-              sizes={i === 0 ? "50vw" : "25vw"}
+              // Hidden on phones, where only its eager first image loads anyway: "1px" picks the smallest file
+              sizes={i === 0 ? "(max-width: 767px) 1px, 50vw" : "(max-width: 767px) 1px, 25vw"}
               alt={i === 0 ? title : ""}
               loading={i === 0 ? "eager" : "lazy"}
-              fetchPriority={i === 0 ? "high" : undefined}
               className="size-full object-cover transition-[scale,filter] duration-500 ease-out group-hover:scale-[1.03] group-hover:brightness-95"
             />
           </button>

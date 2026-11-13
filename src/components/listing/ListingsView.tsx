@@ -1,7 +1,6 @@
 "use client"
 
 import { usePathname, useSearchParams } from "next/navigation"
-import { motion } from "motion/react"
 import { LayoutGrid, LoaderCircle, Rows3, SearchX, SlidersHorizontal, X } from "lucide-react"
 import { useT } from "@/i18n/client"
 import { useNavigate } from "@/components/providers/navigation-progress"
@@ -226,6 +225,8 @@ export function ListingsView({ filters, sort, view, page, visible, total, counts
           </aside>
           {/* Dimmed while the next results load */}
           <div aria-busy={pending} className={cn("transition-opacity duration-200", pending && "opacity-60")}>
+            {/* Cards use <h3>: this keeps the heading outline h1 → h2 → h3 for screen readers */}
+            {results.length > 0 && <h2 className="sr-only">{t.listings.results(results.length)}</h2>}
             {results.length === 0 ? (
               empty
             ) : view === "list" ? (
@@ -239,15 +240,15 @@ export function ListingsView({ filters, sort, view, page, visible, total, counts
             ) : (
               <ul className="grid gap-x-6 gap-y-12 sm:grid-cols-2 xl:grid-cols-3">
                 {visible.map((l, i) => (
-                  <motion.li
+                  // CSS entrance (globals.css): the first cards show from the first paint instead of after hydration
+                  <li
                     key={l.id}
                     id={`listing-${l.id}`}
-                    initial={{ opacity: 0, y: 14 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: Math.min(i % PAGE_SIZE, 6) * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                    className="rise"
+                    style={{ animationDuration: "0.4s", animationDelay: `${Math.min(i % PAGE_SIZE, 6) * 0.04}s`, ["--rise-y" as string]: "14px" }}
                   >
-                    <ListingCard listing={l} />
-                  </motion.li>
+                    <ListingCard listing={l} priority={i < 2} />
+                  </li>
                 ))}
               </ul>
             )}

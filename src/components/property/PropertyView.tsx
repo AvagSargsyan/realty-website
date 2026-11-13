@@ -1,6 +1,5 @@
 "use client"
 
-import { motion } from "motion/react"
 import {
   AirVent, ArrowDownRight, ArrowUpDown, Bath, BedDouble, Building2, ChevronRight, DoorOpen, Droplets, Fence, Flame, Hammer, Heart, Heater,
   Layers, MapPin, MessageCircle, Mountain, MoveVertical, Phone, Refrigerator, Ruler, Send, Share2, ShieldCheck, Sofa, SquareParking, Trees, Waves, Wifi,
@@ -102,7 +101,7 @@ export function PropertyView({ listing: l, similar, similarTotal }: { listing: L
         <div className="mt-8 grid gap-10 md:mt-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-14 xl:grid-cols-[minmax(0,1fr)_400px]">
           {/* Left column */}
           <div className="min-w-0">
-            <motion.header initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+            <header className="rise" style={{ animationDuration: "0.5s", ["--rise-y" as string]: "12px" }}>
               {/* Sold and rented listings keep their page (left out of search), clearly marked */}
               {l.status !== "published" && (
                 <p role="status" className="mb-4 flex flex-wrap items-center gap-3 rounded-md border border-line bg-surface px-4 py-3 text-sm text-ink">
@@ -126,21 +125,22 @@ export function PropertyView({ listing: l, similar, similarTotal }: { listing: L
               <p className="mt-2 text-sm text-muted-ink">
                 {t.property.id(l.id)} · {t.property.updated(updated)}
               </p>
-            </motion.header>
+            </header>
 
             {/* Key details */}
             <section aria-labelledby="facts" className="mt-10 border-t border-line pt-8">
               <h2 id="facts" className="text-xl font-extrabold text-ink">{t.property.facts.title}</h2>
               <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-3 xl:grid-cols-4">
                 {facts.map((f) => (
-                  <div key={f.label} className="flex items-start gap-3">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-full bg-iris-tint text-iris-ink">
-                      <f.icon className="size-[18px]" aria-hidden="true" />
-                    </span>
-                    <div className="min-w-0">
-                      <dt className="text-sm text-muted-ink">{f.label}</dt>
-                      <dd className="mt-0.5 font-semibold text-ink">{f.value}</dd>
-                    </div>
+                  // A <dl> group may only hold <dt>/<dd>, so the icon sits inside the <dt>, placed in the left gutter
+                  <div key={f.label} className="relative min-h-10 min-w-0 ps-13">
+                    <dt className="text-sm text-muted-ink">
+                      <span className="absolute top-0 left-0 grid size-10 place-items-center rounded-full bg-iris-tint text-iris-ink" aria-hidden="true">
+                        <f.icon className="size-[18px]" />
+                      </span>
+                      {f.label}
+                    </dt>
+                    <dd className="mt-0.5 font-semibold text-ink">{f.value}</dd>
                   </div>
                 ))}
               </dl>

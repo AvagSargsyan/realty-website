@@ -230,6 +230,28 @@
   animation: scroll-nudge 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
+/* Entrance animations for content that is on screen when the page opens (hero, listing grid, property
+   title). CSS instead of motion/react, and a slide without a fade: a JS animation keeps the
+   server-rendered element hidden until hydration, and even a CSS fade from opacity 0 made Chrome count
+   the largest element late. Measured on a throttled phone: home LCP 2.0 s with the fade, 0.65 s without.
+   --rise-y sets the distance, the delay comes from an inline animation-delay. */
+@keyframes rise {
+  from { transform: translateY(var(--rise-y, 18px)); }
+}
+.rise {
+  animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes grow-x {
+  from { opacity: 0; transform: scaleX(0); }
+}
+.grow-x {
+  transform-origin: right;
+  animation: grow-x 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rise, .grow-x { animation: none; }
+}
+
 /* Navigation progress bar (src/components/providers/navigation-progress.tsx). It appears only when a
    navigation takes longer than 150 ms, then creeps towards 90 % until the next page is ready. */
 @keyframes nav-progress {

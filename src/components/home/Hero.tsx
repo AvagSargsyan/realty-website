@@ -22,12 +22,8 @@ const PHOTO_LUXURY_HOUSE = "luxury-house"
 const PHOTO_WHITE_MODERN = "white-modern"
 const heroSrc = (name: string, w: number) => `/images/hero/${name}-${w}.webp`
 
-const ease = [0.22, 1, 0.36, 1] as const
-const rise = (delay = 0) => ({
-  initial: { opacity: 0, y: 18 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6, delay, ease },
-})
+/** Delay for the CSS entrance (globals.css `.rise`): visible from the first paint, no waiting for JavaScript. */
+const delay = (s: number) => ({ animationDelay: `${s}s` })
 
 /** A built-in hero photo, or one picked in the Home page global (Payload sizes 480 / 800 / 1600 px). */
 function Img({ id, photo, className, sizes = "50vw" }: { id: string; photo: Photo | null; className?: string; sizes?: string }) {
@@ -53,19 +49,19 @@ function Img({ id, photo, className, sizes = "50vw" }: { id: string; photo: Phot
 function HeroText({ className, districts, content }: { className?: string; districts: ListingDistrict[]; content: HeroContent }) {
   return (
     <div className={cn("max-w-xl", className)}>
-      <motion.p {...rise(0)} className="inline-flex items-center gap-2.5 text-xs font-semibold tracking-[0.22em] text-iris-ink uppercase">
+      <p className="rise inline-flex items-center gap-2.5 text-xs font-semibold tracking-[0.22em] text-iris-ink uppercase">
         <span className="h-px w-8 bg-brand-bright" aria-hidden="true" />
         {content.eyebrow}
-      </motion.p>
-      <motion.h1 {...rise(0.06)} className="mt-5 text-4xl leading-[1.05] font-extrabold text-ink md:text-5xl xl:text-6xl">
+      </p>
+      <h1 style={delay(0.06)} className="rise mt-5 text-4xl leading-[1.05] font-extrabold text-ink md:text-5xl xl:text-6xl">
         {content.title}
-      </motion.h1>
-      <motion.p {...rise(0.12)} className="mt-5 text-lg leading-relaxed text-muted-ink">
+      </h1>
+      <p style={delay(0.12)} className="rise mt-5 text-lg leading-relaxed text-muted-ink">
         {content.intro}
-      </motion.p>
-      <motion.div {...rise(0.18)} className="mt-8">
+      </p>
+      <div style={delay(0.18)} className="rise mt-8">
         <SearchBox districts={districts} />
-      </motion.div>
+      </div>
     </div>
   )
 }
@@ -138,25 +134,24 @@ export function Hero({ districts, content }: { districts: ListingDistrict[]; con
         <HeroText districts={districts} content={content} className="relative z-10 md:pt-20 md:pb-32" />
         <ScrollCue />
         <div className="relative md:my-14">
-          <motion.div
-            aria-hidden="true"
-            className="absolute right-[12%] -bottom-3 z-10 h-1 w-24 rounded-full bg-brand-bright md:-bottom-1"
-            initial={{ opacity: 0, scaleX: 0 }}
-            animate={{ opacity: 1, scaleX: 1 }}
-            transition={{ duration: 0.7, delay: 0.6, ease }}
-            style={{ originX: 1 }}
-          />
+          <div aria-hidden="true" className="grow-x absolute right-[12%] -bottom-3 z-10 h-1 w-24 rounded-full bg-brand-bright md:-bottom-1" />
           <div className="grid h-[380px] grid-cols-2 grid-rows-2 gap-3 md:h-[480px] md:gap-4">
             {tiles.map((tile, i) => (
-              <motion.div
-                key={tile.id}
-                className={cn("group overflow-hidden rounded-md shadow-[0_24px_50px_-28px_rgba(0,0,0,0.45)]", tile.cls)}
-                initial={{ opacity: 0, y: 32 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.85, delay: 0.1 + i * 0.13, ease }}
-              >
-                <Img id={tile.id} photo={content.photos[i] ?? null} sizes="30vw" className={cn("transition-transform duration-700 ease-out group-hover:scale-[1.04]", tile.pos)} />
-              </motion.div>
+              // The tile's own translate (tile.cls) sits on this wrapper; the entrance moves the inner box,
+              // so the two transforms don't overwrite each other
+              <div key={tile.id} className={cn("group", tile.cls)}>
+                <div
+                  className="rise size-full overflow-hidden rounded-md shadow-[0_24px_50px_-28px_rgba(0,0,0,0.45)]"
+                  style={{ ...delay(0.1 + i * 0.13), animationDuration: "0.85s", ["--rise-y" as string]: "32px" }}
+                >
+                  <Img
+                    id={tile.id}
+                    photo={content.photos[i] ?? null}
+                    sizes="(min-width: 768px) 25vw, 50vw"
+                    className={cn("transition-transform duration-700 ease-out group-hover:scale-[1.04]", tile.pos)}
+                  />
+                </div>
+              </div>
             ))}
           </div>
         </div>

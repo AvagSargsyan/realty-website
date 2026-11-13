@@ -68,7 +68,7 @@ export function FavoriteButton({ id, className }: { id: number; className?: stri
   )
 }
 
-function CardPhotos({ listing, href, title }: { listing: Listing; href: string; title: string }) {
+function CardPhotos({ listing, href, title, priority }: { listing: Listing; href: string; title: string; priority?: boolean }) {
   const { t } = useT()
   const photos = listing.photos.slice(0, MAX_CARD_PHOTOS)
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 22 })
@@ -105,9 +105,11 @@ function CardPhotos({ listing, href, title }: { listing: Listing; href: string; 
               <img
                 src={p.card}
                 srcSet={`${p.thumb} 480w, ${p.card} 800w, ${p.large} 1600w`}
-                sizes="(min-width: 1280px) 25vw, (min-width: 768px) 45vw, 92vw"
+                sizes="(min-width: 1280px) 25vw, (min-width: 640px) 45vw, 92vw"
                 alt={i === 0 ? title : `${title}: ${t.card.photo(i + 1, photos.length)}`}
-                loading="lazy"
+                // The first cards of a results page are on screen at once: their cover loads right away
+                loading={priority && i === 0 ? "eager" : "lazy"}
+                fetchPriority={priority && i === 0 ? "high" : undefined}
                 draggable={false}
                 className="size-full object-cover transition-transform duration-700 ease-[var(--ease-out-soft)] group-hover:scale-[1.04]"
               />
@@ -155,7 +157,8 @@ function CardPhotos({ listing, href, title }: { listing: Listing; href: string; 
   )
 }
 
-export function ListingCard({ listing, className }: { listing: Listing; className?: string }) {
+/** `priority`: the card is likely visible when the page opens (first cards of the listings page). */
+export function ListingCard({ listing, className, priority }: { listing: Listing; className?: string; priority?: boolean }) {
   const { t, lang } = useT()
   const { price } = usePrice()
   const href = propertyHref(listing)
@@ -172,7 +175,7 @@ export function ListingCard({ listing, className }: { listing: Listing; classNam
 
   return (
     <article className={cn("group relative flex flex-col", className)}>
-      <CardPhotos listing={listing} href={href} title={title} />
+      <CardPhotos listing={listing} href={href} title={title} priority={priority} />
 
       <div className="flex flex-1 flex-col pt-4">
         <div className="flex items-center justify-between gap-3 text-xs font-medium tracking-wider text-muted-ink uppercase">
