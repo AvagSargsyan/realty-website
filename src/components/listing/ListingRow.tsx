@@ -20,8 +20,8 @@ export function ListingRow({ listing, className }: { listing: Listing; className
   const facts = [
     listing.rooms > 0 && { icon: BedDouble, label: t.card.rooms(listing.rooms) },
     { icon: Ruler, label: `${formatNumber(listing.area, lang)} ${t.units.sqm}` },
-    listing.type === "apartment" && { icon: Building2, label: t.card.floor(listing.floor, listing.floors) },
-    listing.type === "house" && { icon: Building2, label: t.card.floors(listing.floors) },
+    listing.type === "apartment" && listing.floor !== undefined && { icon: Building2, label: t.card.floor(listing.floor, listing.floors) },
+    listing.type === "house" && listing.floors && { icon: Building2, label: t.card.floors(listing.floors) },
   ].filter(Boolean) as { icon: typeof Ruler; label: string }[]
 
   return (

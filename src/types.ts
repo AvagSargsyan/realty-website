@@ -46,9 +46,10 @@ export type Listing = {
   rooms: number
   bedrooms: number
   bathrooms: number
-  floor: number
-  floors: number
-  ceiling: number
+  /** Left empty in the admin = undefined, so the page can show "—" instead of 0 */
+  floor?: number
+  floors?: number
+  ceiling?: number
   building?: Building
   condition?: Condition
   amenities: string[]

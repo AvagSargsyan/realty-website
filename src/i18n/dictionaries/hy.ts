@@ -37,7 +37,7 @@ const hy: Dict = {
   },
   card: {
     rooms: (n: number) => `${n} սենյակ`,
-    floor: (f: number, of: number) => `Հարկ ${f}/${of}`,
+    floor: (f: number, of?: number) => (of ? `Հարկ ${f}/${of}` : `Հարկ ${f}`),
     floors: (n: number) => `${n} հարկ`,
     perMonth: "/ ամիս",
     save: "Պահպանել",

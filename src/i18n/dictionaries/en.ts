@@ -35,7 +35,7 @@ const en = {
   },
   card: {
     rooms: (n: number) => `${n} ${n === 1 ? "room" : "rooms"}`,
-    floor: (f: number, of: number) => `Floor ${f}/${of}`,
+    floor: (f: number, of?: number) => (of ? `Floor ${f}/${of}` : `Floor ${f}`),
     floors: (n: number) => `${n} floors`,
     perMonth: "/ month",
     save: "Save",

@@ -44,7 +44,7 @@ const ru: Dict = {
   },
   card: {
     rooms: (n: number) => `${n} ${plural(n, "комната", "комнаты", "комнат")}`,
-    floor: (f: number, of: number) => `Этаж ${f}/${of}`,
+    floor: (f: number, of?: number) => (of ? `Этаж ${f}/${of}` : `Этаж ${f}`),
     floors: (n: number) => `${n} ${plural(n, "этаж", "этажа", "этажей")}`,
     perMonth: "/ мес.",
     save: "Сохранить",

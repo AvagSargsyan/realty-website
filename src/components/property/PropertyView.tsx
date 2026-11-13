@@ -69,11 +69,11 @@ export function PropertyView({ listing: l, similar, similarTotal }: { listing: L
     ...(l.bedrooms > 0 ? [{ icon: BedDouble, label: t.property.facts.bedrooms, value: String(l.bedrooms) }] : []),
     ...(l.bathrooms > 0 ? [{ icon: Bath, label: t.property.facts.bathrooms, value: String(l.bathrooms) }] : []),
     ...(l.type === "apartment"
-      ? [{ icon: Layers, label: t.property.facts.floor, value: `${l.floor} / ${l.floors}` }]
+      ? [{ icon: Layers, label: t.property.facts.floor, value: `${l.floor ?? "—"}${l.floors ? ` / ${l.floors}` : ""}` }]
       : l.type === "land"
         ? []
-        : [{ icon: Layers, label: t.property.facts.floors, value: String(l.floors) }]),
-    ...(l.type !== "land" ? [{ icon: MoveVertical, label: t.property.facts.ceiling, value: `${formatNumber(l.ceiling, lang)} ${t.property.facts.m}` }] : []),
+        : [{ icon: Layers, label: t.property.facts.floors, value: l.floors ? String(l.floors) : "—" }]),
+    ...(l.type !== "land" ? [{ icon: MoveVertical, label: t.property.facts.ceiling, value: l.ceiling ? `${formatNumber(l.ceiling, lang)} ${t.property.facts.m}` : "—" }] : []),
     ...(l.type !== "land" ? [{ icon: Building2, label: t.property.facts.building, value: l.building ? t.building[l.building] : "—" }] : []),
     ...(l.type !== "land" ? [{ icon: Hammer, label: t.property.facts.condition, value: l.condition ? t.condition[l.condition] : "—" }] : []),
   ]
