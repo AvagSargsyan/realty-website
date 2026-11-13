@@ -97,10 +97,12 @@ export interface Config {
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('hy' | 'en' | 'ru') | ('hy' | 'en' | 'ru')[];
   globals: {
     'home-page': HomePage;
+    pages: Page;
     'site-settings': SiteSetting;
   };
   globalsSelect: {
     'home-page': HomePageSelect<false> | HomePageSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
   };
   locale: 'hy' | 'en' | 'ru';
@@ -736,6 +738,91 @@ export interface HomePage {
   createdAt?: string | null;
 }
 /**
+ * Texts of the About, FAQ, Contact, Submit, Privacy and Terms pages. An empty text shows the built-in wording of that language.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  about?: {
+    title?: string | null;
+    body?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+  };
+  faq?: {
+    title?: string | null;
+    intro?: string | null;
+    items?:
+      | {
+          question: string;
+          answer: string;
+          id?: string | null;
+        }[]
+      | null;
+    more?: string | null;
+  };
+  contact?: {
+    title?: string | null;
+    intro?: string | null;
+  };
+  submit?: {
+    title?: string | null;
+    intro?: string | null;
+  };
+  privacy?: {
+    title?: string | null;
+    body?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+  };
+  terms?: {
+    title?: string | null;
+    body?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings".
  */
@@ -837,6 +924,59 @@ export interface HomePageSelect<T extends boolean = true> {
         body?: T;
         primary?: T;
         secondary?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  about?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+      };
+  faq?:
+    | T
+    | {
+        title?: T;
+        intro?: T;
+        items?:
+          | T
+          | {
+              question?: T;
+              answer?: T;
+              id?: T;
+            };
+        more?: T;
+      };
+  contact?:
+    | T
+    | {
+        title?: T;
+        intro?: T;
+      };
+  submit?:
+    | T
+    | {
+        title?: T;
+        intro?: T;
+      };
+  privacy?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+      };
+  terms?:
+    | T
+    | {
+        title?: T;
+        body?: T;
       };
   updatedAt?: T;
   createdAt?: T;

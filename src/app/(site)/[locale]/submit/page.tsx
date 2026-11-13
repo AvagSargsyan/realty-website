@@ -3,16 +3,19 @@ import { notFound } from 'next/navigation'
 
 import { SubmitView } from '@/components/pages/SubmitView'
 import { isLocale } from '@/i18n/config'
-import { DICTS } from '@/i18n/dictionaries'
 import { getDistricts } from '@/lib/listings'
+import { getIntro } from '@/lib/pages'
 
 export async function generateMetadata({ params }: PageProps<'/[locale]/submit'>): Promise<Metadata> {
   const { locale } = await params
-  return isLocale(locale) ? { title: DICTS[locale].submit.title, description: DICTS[locale].submit.intro } : {}
+  if (!isLocale(locale)) return {}
+  const { title, intro } = await getIntro(locale, 'submit')
+  return { title, description: intro }
 }
 
 export default async function Submit({ params }: PageProps<'/[locale]/submit'>) {
   const { locale } = await params
   if (!isLocale(locale)) notFound()
-  return <SubmitView districts={await getDistricts(locale)} />
+  const [districts, intro] = await Promise.all([getDistricts(locale), getIntro(locale, 'submit')])
+  return <SubmitView districts={districts} intro={intro} />
 }

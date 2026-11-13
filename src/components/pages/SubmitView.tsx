@@ -8,6 +8,7 @@ import { useBotCheck } from "@/components/forms/bot-check"
 import { FormSuccess, leadErrorText } from "@/components/forms/ContactForm"
 import { focusFirstError, isNumber, isPhone, SelectField, TextArea, TextField } from "@/components/forms/fields"
 import { TYPES } from "@/lib/filters"
+import type { IntroContent } from "@/lib/pages"
 import { REGION_NAMES } from "@/lib/regions"
 import { cn } from "@/lib/utils"
 import type { Deal, ListingDistrict, PropertyType, Region } from "@/types"
@@ -29,7 +30,7 @@ const INITIAL: Values = { deal: "sale", type: "apartment", district: "", address
 const toNumber = (s: string) => (s.trim() ? Number(s.replace(/[\s,]/g, "")) : undefined)
 
 /** "Submit a property", ported from the demo. Saved as a Lead (kind "submit") with the property details. */
-export function SubmitView({ districts }: { districts: ListingDistrict[] }) {
+export function SubmitView({ districts, intro }: { districts: ListingDistrict[]; intro: IntroContent }) {
   const { t, lang } = useT()
   const formRef = useRef<HTMLFormElement>(null)
   const [v, setV] = useState<Values>(INITIAL)
@@ -90,8 +91,8 @@ export function SubmitView({ districts }: { districts: ListingDistrict[] }) {
     <div className="container-page pt-8 pb-20 md:pt-12">
       <div className="mx-auto max-w-3xl">
         <div className="border-b border-line pb-8">
-          <h1 className="text-3xl leading-tight font-extrabold text-ink md:text-5xl">{t.submit.title}</h1>
-          <p className="mt-4 text-lg text-muted-ink">{t.submit.intro}</p>
+          <h1 className="text-3xl leading-tight font-extrabold text-ink md:text-5xl">{intro.title}</h1>
+          <p className="mt-4 text-lg text-muted-ink">{intro.intro}</p>
         </div>
 
         {sent ? (

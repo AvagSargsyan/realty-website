@@ -2,26 +2,14 @@ import type { Field, GlobalConfig } from 'payload'
 
 import { isEditor, anyone } from '../collections/shared/access'
 import { fromDict, label, type AdminLabel } from '../collections/shared/labels'
-import { DICTS, type Dict } from '../i18n/dictionaries'
 import { revalidateSite } from '../lib/revalidate'
-import type { Lang } from '../types'
+import { dictText as text } from './shared'
 
 /**
  * Editable texts, hero photos and listing picks for the home page.
  * Every text starts as the website's own wording (the dictionaries). A field left empty in a language
  * shows that wording too (src/lib/home.ts), so the page never goes blank or shows another language.
  */
-
-/** A translated text field whose default is the dictionary text for the language being edited. */
-const text = (name: string, en: AdminLabel, pick: (d: Dict) => string, multiline = false): Field => {
-  const base = {
-    name,
-    localized: true,
-    label: en,
-    defaultValue: ({ locale }: { locale?: string }) => pick(DICTS[(locale ?? 'hy') as Lang]),
-  }
-  return multiline ? { ...base, type: 'textarea' } : { ...base, type: 'text' }
-}
 
 const L = {
   eyebrow: label('Small line above the title', 'Փոքր տող վերնագրից վերև', 'Строка над заголовком'),
