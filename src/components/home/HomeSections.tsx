@@ -5,7 +5,7 @@ import { motion } from "motion/react"
 import { ArrowRight, BadgeCheck, Handshake, KeyRound, Phone, Quote, Star } from "lucide-react"
 import { Link, useT } from "@/i18n/client"
 import { useSettings } from "@/components/providers/SettingsProvider"
-import type { HomeContent } from "@/lib/home"
+import type { HomeContent, HomeReviews } from "@/lib/home"
 import { listingsHref, type Tile } from "@/lib/search"
 import { cn } from "@/lib/utils"
 import { fadeUp, SectionHeading } from "./Section"
@@ -96,47 +96,52 @@ export function Services({ content }: { content: HomeContent["services"] }) {
 }
 
 /* ---------- Reviews ---------- */
-const RATING = 4.8
-const REVIEW_COUNT = 120
-
-function Stars({ className }: { className?: string }) {
+/** Five stars, the first `filled` of them coloured. The number itself is said in text next to it. */
+function Stars({ className, filled = 5 }: { className?: string; filled?: number }) {
   return (
     <span className={cn("inline-flex gap-0.5 text-brand-bright", className)} aria-hidden="true">
       {Array.from({ length: 5 }, (_, i) => (
-        <Star key={i} className="size-4 fill-current" />
+        <Star key={i} className={cn("size-4", i < Math.round(filled) ? "fill-current" : "text-line")} />
       ))}
     </span>
   )
 }
 
-export function Reviews() {
+/** Reviews from Admin → Clients → Reviews; title, Google rating and the sample note from Settings → Home page. */
+export function Reviews({ content }: { content: HomeReviews }) {
   const { t, lang } = useT()
   const id = useId()
-  const rating = new Intl.NumberFormat(lang === "ru" ? "ru-RU" : "en-US", { minimumFractionDigits: 1 }).format(RATING)
+  if (!content.items.length) return null
+  const rating = content.rating
+    ? new Intl.NumberFormat(lang === "ru" ? "ru-RU" : "en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(content.rating)
+    : null
   return (
     <section aria-labelledby={`${id}-title`} className="bg-surface py-16 md:py-24">
       <div className="container-page">
-        <SectionHeading id={`${id}-title`} title={t.home.reviews.title}>
-          <div className="flex items-center gap-3 rounded-md border border-line bg-background px-4 py-3">
-            <span className="font-heading text-3xl leading-none font-extrabold text-ink">{rating}</span>
-            <div>
-              <Stars />
-              <p className="mt-0.5 text-xs text-muted-ink">
-                {t.home.reviews.onGoogle} · {t.home.reviews.basedOn(REVIEW_COUNT)}
-              </p>
+        <SectionHeading id={`${id}-title`} title={content.title}>
+          {rating && (
+            <div className="flex items-center gap-3 rounded-md border border-line bg-background px-4 py-3">
+              <span className="font-heading text-3xl leading-none font-extrabold text-ink">{rating}</span>
+              <div>
+                <Stars filled={content.rating} />
+                <p className="mt-0.5 text-xs text-muted-ink">
+                  {t.home.reviews.onGoogle}
+                  {content.count ? ` · ${t.home.reviews.basedOn(content.count)}` : ""}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </SectionHeading>
         <ul className="grid gap-5 md:grid-cols-3 md:gap-6">
-          {t.home.reviews.items.map((r, i) => (
+          {content.items.map((r, i) => (
             <motion.li
-              key={r.name}
+              key={`${i}-${r.name}`}
               {...fadeUp}
               transition={{ ...fadeUp.transition, delay: i * 0.08 }}
               className="flex flex-col rounded-lg border border-line bg-background p-6 md:p-7"
             >
               <div className="flex items-center justify-between">
-                <Stars />
+                <Stars filled={r.rating} />
                 <Quote className="size-6 text-iris-ink/25" aria-hidden="true" />
               </div>
               <blockquote className="mt-5 flex-1 text-[1.02rem] leading-relaxed text-ink">{r.text}</blockquote>
@@ -152,7 +157,7 @@ export function Reviews() {
             </motion.li>
           ))}
         </ul>
-        <p className="mt-6 text-xs text-muted-ink">{t.home.reviews.sample}</p>
+        {content.sampleNote && <p className="mt-6 text-xs text-muted-ink">{t.home.reviews.sample}</p>}
       </div>
     </section>
   )

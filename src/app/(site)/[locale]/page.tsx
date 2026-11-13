@@ -36,7 +36,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
       <CategoryRow rail={home.row1} className="pt-16 md:pt-24" />
       <CategoryRow rail={home.row2} className="pt-16 md:pt-20" />
       <Services content={home.services} />
-      <Reviews />
+      <Reviews content={home.reviews} />
       <SellCta content={home.cta} />
     </>
   )

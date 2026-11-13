@@ -72,6 +72,7 @@ export interface Config {
     agents: Agent;
     media: Media;
     leads: Lead;
+    reviews: Review;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -85,6 +86,7 @@ export interface Config {
     agents: AgentsSelect<false> | AgentsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     leads: LeadsSelect<false> | LeadsSelect<true>;
+    reviews: ReviewsSelect<false> | ReviewsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -367,6 +369,24 @@ export interface Lead {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews".
+ */
+export interface Review {
+  id: number;
+  _order?: string | null;
+  name: string;
+  /**
+   * E.g. "Bought a 3-room apartment in Arabkir"
+   */
+  role?: string | null;
+  text: string;
+  rating: number;
+  published?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -408,6 +428,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'leads';
         value: number | Lead;
+      } | null)
+    | ({
+        relationTo: 'reviews';
+        value: number | Review;
       } | null)
     | ({
         relationTo: 'users';
@@ -606,6 +630,20 @@ export interface LeadsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews_select".
+ */
+export interface ReviewsSelect<T extends boolean = true> {
+  _order?: T;
+  name?: T;
+  role?: T;
+  text?: T;
+  rating?: T;
+  published?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
@@ -727,6 +765,15 @@ export interface HomePage {
       body?: string | null;
       cta?: string | null;
     };
+  };
+  reviews?: {
+    title?: string | null;
+    /**
+     * Empty hides the rating box
+     */
+    rating?: number | null;
+    count?: number | null;
+    sampleNote?: boolean | null;
   };
   cta?: {
     title?: string | null;
@@ -916,6 +963,14 @@ export interface HomePageSelect<T extends boolean = true> {
               body?: T;
               cta?: T;
             };
+      };
+  reviews?:
+    | T
+    | {
+        title?: T;
+        rating?: T;
+        count?: T;
+        sampleNote?: T;
       };
   cta?:
     | T

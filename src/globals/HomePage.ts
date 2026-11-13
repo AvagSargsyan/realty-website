@@ -173,6 +173,51 @@ export const HomePage: GlobalConfig = {
           ],
         },
         {
+          label: label('Reviews', 'Կարծիքներ', 'Отзывы'),
+          description: label(
+            'The reviews themselves are in Clients → Reviews.',
+            'Կարծիքներն իրենք՝ Հաճախորդներ → Կարծիքներ բաժնում։',
+            'Сами отзывы — в разделе Клиенты → Отзывы.',
+          ),
+          fields: [
+            {
+              name: 'reviews',
+              type: 'group',
+              label: false,
+              fields: [
+                text('title', L.title, (d) => d.home.reviews.title),
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'rating',
+                      type: 'number',
+                      min: 1,
+                      max: 5,
+                      defaultValue: 4.8,
+                      label: label('Average rating on Google', 'Միջին գնահատական Google-ում', 'Средняя оценка в Google'),
+                      admin: { step: 0.1, description: label('Empty hides the rating box', 'Դատարկ լինելու դեպքում գնահատականը չի ցուցադրվում', 'Если пусто, оценка не показывается') },
+                    },
+                    {
+                      name: 'count',
+                      type: 'number',
+                      min: 1,
+                      defaultValue: 120,
+                      label: label('Number of Google reviews', 'Google-ի կարծիքների քանակ', 'Число отзывов в Google'),
+                    },
+                  ],
+                },
+                {
+                  name: 'sampleNote',
+                  type: 'checkbox',
+                  defaultValue: true,
+                  label: label('Show "Sample reviews for the demo" under the reviews', 'Ցուցադրել «Կարծիքների օրինակներ» նշումը', 'Показывать пометку «Примеры отзывов»'),
+                },
+              ],
+            },
+          ],
+        },
+        {
           label: label('Call to action', 'Կոչ գործողության', 'Призыв к действию'),
           fields: [
             {

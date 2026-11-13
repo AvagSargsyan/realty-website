@@ -14,6 +14,7 @@ import { Districts } from './collections/Districts'
 import { Leads } from './collections/Leads'
 import { Media } from './collections/Media'
 import { Properties } from './collections/Properties'
+import { Reviews } from './collections/Reviews'
 import { Users } from './collections/Users'
 import { HomePage } from './globals/HomePage'
 import { Pages } from './globals/Pages'
@@ -36,7 +37,7 @@ export default buildConfig({
     },
   },
   // Order = order in the admin sidebar
-  collections: [Properties, Districts, Agents, Media, Leads, Users],
+  collections: [Properties, Districts, Agents, Media, Leads, Reviews, Users],
   globals: [HomePage, Pages, SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

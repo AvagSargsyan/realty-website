@@ -1,6 +1,6 @@
 /**
- * Fills a database with sample content: 12 districts, 3 agents and 300 published listings with photos
- * (the demo's 30 exactly, plus 270 more from the same generator).
+ * Fills a database with sample content: 12 districts, 3 agents, the 3 sample reviews and 300 published
+ * listings with photos (the demo's 30 exactly, plus 270 more from the same generator).
  *
  *   pnpm seed           -> the database in .env.local (your Docker Postgres)
  *   pnpm seed:staging   -> the database and Blob store in .env.staging (see README)
@@ -44,6 +44,7 @@ if (seedEnv) process.env.PAYLOAD_DB_PUSH = 'false'
 // PAYLOAD_DB_PUSH on import
 const { default: config } = await import('@payload-config')
 const { getPayload } = await import('payload')
+const { DICTS } = await import('../../src/i18n/dictionaries')
 const payload = await getPayload({ config })
 
 // The demo's 30 listings plus 20 more from a second run of the same generator
@@ -76,7 +77,7 @@ const MORE = {
 const listings: SampleListing[] = [...generateListings(DEMO), ...generateListings(EXTRA), ...generateListings(MORE)]
 
 /** Create or update one document in every locale: `fields(locale)` returns that locale's values. */
-async function upsert<C extends 'districts' | 'agents' | 'properties'>(
+async function upsert<C extends 'districts' | 'agents' | 'properties' | 'reviews'>(
   collection: C,
   where: Record<string, { equals: unknown }>,
   fields: (locale: Locale) => Record<string, unknown>,
@@ -117,6 +118,17 @@ for (const a of AGENTS) {
   )
 }
 console.log(`✓ ${AGENTS.length} agents`)
+
+// ---------- Reviews (the demo's three samples, matched by their Armenian name) ----------
+const sampleReviews = DICTS.hy.home.reviews.items
+for (const [i, r] of sampleReviews.entries()) {
+  await upsert('reviews', { name: { equals: r.name } }, (l) => ({
+    ...DICTS[l].home.reviews.items[i],
+    rating: 5,
+    published: true,
+  }))
+}
+console.log(`✓ ${sampleReviews.length} reviews`)
 
 // ---------- Photos ----------
 const photoPools = new Map<string, PhotoPool>()
