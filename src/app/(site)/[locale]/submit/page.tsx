@@ -5,12 +5,13 @@ import { SubmitView } from '@/components/pages/SubmitView'
 import { isLocale } from '@/i18n/config'
 import { getDistricts } from '@/lib/listings'
 import { getIntro } from '@/lib/pages'
+import { pageMetadata } from '@/lib/seo'
 
 export async function generateMetadata({ params }: PageProps<'/[locale]/submit'>): Promise<Metadata> {
   const { locale } = await params
   if (!isLocale(locale)) return {}
   const { title, intro } = await getIntro(locale, 'submit')
-  return { title, description: intro }
+  return pageMetadata({ locale, path: '/submit', title, description: intro })
 }
 
 export default async function Submit({ params }: PageProps<'/[locale]/submit'>) {

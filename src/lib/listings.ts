@@ -166,6 +166,43 @@ export async function getPropertyByCode(locale: Lang, code: number): Promise<Lis
   return res.docs[0] ? toListing(res.docs[0]) : null
 }
 
+/** A listing's URL slug in every language (an untranslated title falls back to the Armenian slug, as on the page). */
+export type SlugsByLang = Record<Lang, string>
+
+type AllLocaleSlug = { hy?: string | null; en?: string | null; ru?: string | null } | null | undefined
+const slugsOf = (s: AllLocaleSlug): SlugsByLang => ({ hy: s?.hy ?? '', en: s?.en || s?.hy || '', ru: s?.ru || s?.hy || '' })
+
+/** For the property page's hreflang links: the other languages' addresses use their own slugs. */
+export async function getPropertySlugs(code: number): Promise<SlugsByLang> {
+  const payload = await getClient()
+  const res = await payload.find({
+    collection: 'properties',
+    where: { code: { equals: code } },
+    locale: 'all',
+    depth: 0,
+    limit: 1,
+    select: { slug: true },
+    overrideAccess: false,
+  })
+  return slugsOf(res.docs[0]?.slug as unknown as AllLocaleSlug)
+}
+
+/** Every published listing's code, slugs and last change, for sitemap.xml. */
+export async function getSitemapListings(): Promise<{ code: number; slugs: SlugsByLang; updatedAt: string }[]> {
+  const payload = await getClient()
+  const res = await payload.find({
+    collection: 'properties',
+    where: ACTIVE,
+    locale: 'all',
+    depth: 0,
+    pagination: false,
+    select: { code: true, slug: true, updatedAt: true },
+    sort: '-updatedAt',
+    overrideAccess: false,
+  })
+  return res.docs.flatMap((d) => (d.code ? [{ code: d.code, slugs: slugsOf(d.slug as unknown as AllLocaleSlug), updatedAt: d.updatedAt }] : []))
+}
+
 /** Same deal first, then same type, then same district (the demo's rule), newest first within a score. */
 export function similarCodes(rows: IndexRow[], l: Pick<Listing, 'id' | 'deal' | 'type' | 'district'>) {
   return rows

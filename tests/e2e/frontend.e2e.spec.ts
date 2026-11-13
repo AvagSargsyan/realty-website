@@ -5,7 +5,7 @@ test.describe('Frontend', () => {
     await page.goto('http://localhost:3000')
 
     await expect(page).toHaveURL(/\/(hy|en|ru)$/)
-    await expect(page).toHaveTitle(/Avenue Real Estate Agency/)
+    await expect(page).toHaveTitle(/^Avenue Real Estate: /)
     await expect(page.getByRole('navigation', { name: 'Main' })).toBeVisible()
   })
 

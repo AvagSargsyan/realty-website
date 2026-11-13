@@ -5,13 +5,14 @@ import { ContactPage } from '@/components/pages/ContactPage'
 import { isLocale } from '@/i18n/config'
 import { DICTS } from '@/i18n/dictionaries'
 import { getIntro } from '@/lib/pages'
+import { pageMetadata } from '@/lib/seo'
 import { getSiteSettings } from '@/lib/settings'
 
 export async function generateMetadata({ params }: PageProps<'/[locale]/contact'>): Promise<Metadata> {
   const { locale } = await params
   if (!isLocale(locale)) return {}
   const { title, intro } = await getIntro(locale, 'contact')
-  return { title, description: intro }
+  return pageMetadata({ locale, path: '/contact', title, description: intro })
 }
 
 export default async function Contact({ params }: PageProps<'/[locale]/contact'>) {

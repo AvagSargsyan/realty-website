@@ -2,6 +2,7 @@ import 'server-only'
 
 import config from '@payload-config'
 import { getPayload } from 'payload'
+import { cache } from 'react'
 
 import type { RowSource } from '@/globals/HomePage'
 import { DICTS } from '@/i18n/dictionaries'
@@ -81,8 +82,9 @@ async function loadReviews(locale: Lang): Promise<HomeReview[]> {
  * the dictionary text of that language. No fallback to Armenian here (fallbackLocale: false), or an
  * English page would show Armenian text the editor hasn't translated yet.
  * The home page is prerendered, so this runs at build time and after admin changes (revalidateSite).
+ * `cache`: generateMetadata and the page share one read per render.
  */
-export async function getHomeContent(locale: Lang): Promise<HomeContent> {
+export const getHomeContent = cache(async (locale: Lang): Promise<HomeContent> => {
   const payload = await getPayload({ config })
   const g = await payload.findGlobal({ slug: 'home-page', locale, fallbackLocale: false, depth: 1 })
   const t = DICTS[locale].home
@@ -127,4 +129,4 @@ export async function getHomeContent(locale: Lang): Promise<HomeContent> {
       secondary: or(g.cta?.secondary, t.cta.secondary),
     },
   }
-}
+})

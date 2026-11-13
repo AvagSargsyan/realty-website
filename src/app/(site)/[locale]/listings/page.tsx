@@ -18,6 +18,7 @@ import {
   type Filters,
 } from '@/lib/filters'
 import { findByCodes, getDistricts, getListingIndex } from '@/lib/listings'
+import { pageMetadata } from '@/lib/seo'
 import { getSiteSettings } from '@/lib/settings'
 import type { Currency } from '@/types'
 
@@ -35,12 +36,32 @@ function pageTitle(locale: keyof typeof DICTS, f: Filters) {
   return f.deal ? `${title} · ${t.deal[f.deal]}` : title
 }
 
+/** Keys a search engine may index: one deal, one type and one district (e.g. "apartments for sale in Arabkir"). */
+const INDEXABLE = ['deal', 'type', 'district'] as const
+/** Keys that only change how the same results look; the canonical address drops them. */
+const PRESENTATION = ['sort', 'view', 'page']
+
 export async function generateMetadata({ params, searchParams }: PageProps<'/[locale]/listings'>): Promise<Metadata> {
   const { locale } = await params
   if (!isLocale(locale)) return {}
+  const sp = await searchParams
+  const p = reader(sp)
   const districts = await getDistricts(locale)
-  const filters = readFilters(reader(await searchParams), districts.map((d) => d.key))
-  return { title: pageTitle(locale, filters) }
+  const filters = readFilters(p, districts.map((d) => d.key))
+  const district = filters.district.length === 1 ? districts.find((d) => d.key === filters.district[0]) : undefined
+  const title = district ? `${pageTitle(locale, filters)} · ${district.name}` : pageTitle(locale, filters)
+
+  // Indexable when only the simple keys are used, each with one value. Anything else (rooms, price
+  // ranges, several districts...) gets noindex,follow: too many combinations, mostly duplicates.
+  const keys = Object.keys(sp).filter((k) => sp[k] !== undefined && sp[k] !== '' && !PRESENTATION.includes(k))
+  const simple = keys.every((k) => (INDEXABLE as readonly string[]).includes(k)) && filters.type.length <= 1 && filters.district.length <= 1
+  const canonical = new URLSearchParams()
+  for (const k of INDEXABLE) {
+    const v = p.get(k)
+    if (v) canonical.set(k, v)
+  }
+  const qs = canonical.toString()
+  return pageMetadata({ locale, path: `/listings${qs ? `?${qs}` : ''}`, title, description: DICTS[locale].footer.tagline, noindex: !simple })
 }
 
 /** Listings with filters, sorting, grid/list and "Load more" (same URL keys and behaviour as the demo). */

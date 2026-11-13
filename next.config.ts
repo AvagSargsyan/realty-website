@@ -26,6 +26,8 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(dirname),
   },
+  // The share-image routes read these fonts from disk (src/app/og/shared.tsx)
+  outputFileTracingIncludes: { '/og/**': ['./assets/og-fonts/**'] },
   // Only production may be indexed: staging and local send `noindex` on every response
   async headers() {
     if (process.env.VERCEL_ENV === 'production') return []

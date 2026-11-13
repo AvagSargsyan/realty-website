@@ -31,6 +31,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Skip Payload (/admin, /api), Next internals and files with an extension (favicon.svg, robots.txt ...)
-  matcher: ['/((?!admin|api|_next|.*\\..*).*)'],
+  // Skip Payload (/admin, /api), the share images (/og), Next internals and files with an extension
+  // (favicon.svg, robots.txt ...)
+  matcher: ['/((?!admin|api|og/|_next|.*\\..*).*)'],
 }

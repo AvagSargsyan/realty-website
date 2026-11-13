@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { Hero } from '@/components/home/Hero'
@@ -7,6 +8,7 @@ import { isLocale } from '@/i18n/config'
 import { getHomeContent } from '@/lib/home'
 import { findListings, getDistricts, whereFromQuery } from '@/lib/listings'
 import { TILES, type Tile } from '@/lib/search'
+import { pageMetadata, SITE_NAME } from '@/lib/seo'
 
 /** Popular-search tiles: live counts, and a different cover photo for each tile (as in the demo). */
 async function getTiles(locale: Parameters<typeof findListings>[0]): Promise<Tile[]> {
@@ -19,6 +21,14 @@ async function getTiles(locale: Parameters<typeof findListings>[0]): Promise<Til
     if (cover) used.add(cover.full)
     return { ...tile, count: total, cover }
   })
+}
+
+export async function generateMetadata({ params }: PageProps<'/[locale]'>): Promise<Metadata> {
+  const { locale } = await params
+  if (!isLocale(locale)) return {}
+  const home = await getHomeContent(locale)
+  const meta = pageMetadata({ locale, path: '', title: `${SITE_NAME}: ${home.hero.title}`, description: home.hero.intro })
+  return { ...meta, title: { absolute: `${SITE_NAME}: ${home.hero.title}` } }
 }
 
 /** Home page, same sections and order as the demo. Texts and listing rows come from the Home page global. */

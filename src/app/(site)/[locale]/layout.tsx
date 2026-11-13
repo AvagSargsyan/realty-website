@@ -11,6 +11,9 @@ import { ToastProvider } from '@/components/ui/toast'
 import { THEME_COLORS, THEME_SCRIPT } from '@/components/providers/preferences'
 import { LocaleProvider } from '@/i18n/client'
 import { isLocale, LOCALES } from '@/i18n/config'
+import { DICTS } from '@/i18n/dictionaries'
+import { agencyJsonLd } from '@/lib/json-ld'
+import { jsonLdScript, SITE_NAME, SITE_URL } from '@/lib/seo'
 import { getSiteSettings } from '@/lib/settings'
 import '../globals.css'
 
@@ -21,10 +24,15 @@ export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }))
 }
 
-export const metadata: Metadata = {
-  title: { default: 'Avenue Real Estate Agency', template: '%s · Avenue Real Estate' },
-  description: 'Buy, sell and rent property in Yerevan.',
-  icons: { icon: '/favicon.svg' },
+/** Defaults for every page; pages set their own title, canonical and Open Graph through pageMetadata (src/lib/seo.ts). */
+export async function generateMetadata({ params }: LayoutProps<'/[locale]'>): Promise<Metadata> {
+  const { locale } = await params
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: { default: 'Avenue Real Estate Agency', template: `%s · ${SITE_NAME}` },
+    description: isLocale(locale) ? DICTS[locale].footer.tagline : undefined,
+    icons: { icon: '/favicon.svg' },
+  }
 }
 
 export const viewport: Viewport = { themeColor: THEME_COLORS.light }
@@ -44,6 +52,7 @@ export default async function SiteLayout({ children, params }: LayoutProps<'/[lo
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body>
+        <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(agencyJsonLd(locale, settings))} />
         <LocaleProvider locale={locale}>
           <SettingsProvider value={settings}>
             <ToastProvider>

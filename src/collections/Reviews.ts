@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
-import { anyone, isEditor } from './shared/access'
+import { isEditor } from './shared/access'
 import { label } from './shared/labels'
 import { revalidateSite } from '../lib/revalidate'
 

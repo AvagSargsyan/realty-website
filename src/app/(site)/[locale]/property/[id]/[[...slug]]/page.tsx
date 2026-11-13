@@ -4,7 +4,11 @@ import { cache } from 'react'
 
 import { PropertyView } from '@/components/property/PropertyView'
 import { isLocale } from '@/i18n/config'
-import { findByCodes, getListingIndex, getPropertyByCode, similarCodes } from '@/lib/listings'
+import { DICTS } from '@/i18n/dictionaries'
+import { listingJsonLd } from '@/lib/json-ld'
+import { findByCodes, getListingIndex, getPropertyByCode, getPropertySlugs, similarCodes } from '@/lib/listings'
+import { propertyHref } from '@/lib/search'
+import { jsonLdScript, pageMetadata } from '@/lib/seo'
 import type { Lang } from '@/types'
 
 // Each listing page is rendered on its first visit, then cached until the admin changes something
@@ -22,11 +26,21 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/property
   if (!isLocale(locale)) return {}
   const l = await load(locale, id)
   if (!l) return {}
-  return {
+  const slugs = await getPropertySlugs(l.id)
+  const t = DICTS[locale]
+  // Description: the agent's text, or a summary built from the facts when it's empty
+  const summary = [t.type[l.type], t.deal[l.deal], `${l.area} ${t.units.sqm}`, l.district.name].join(' · ')
+  const description = (l.description || summary).replace(/\s+/g, ' ').trim()
+  return pageMetadata({
+    locale,
+    path: (lang) => propertyHref({ id: l.id, slug: slugs[lang] }),
     title: l.title,
-    description: l.description.slice(0, 160) || undefined,
-    openGraph: l.photos[0]?.og ? { images: [{ url: l.photos[0].og, width: 1200, height: 630 }] } : undefined,
-  }
+    description: description.length > 160 ? `${description.slice(0, 157).trimEnd()}…` : description,
+    // Generated card: cover photo with price and district (src/app/og). `v` changes with every edit,
+    // so social networks and the CDN fetch a new image after a price change.
+    image: `/og/${locale}/property/${l.id}?v=${Date.parse(l.updatedAt) || 0}`,
+    type: 'article',
+  })
 }
 
 /** /hy/property/422001/2-senyakanots-bnakaran-...: the slug is for people and search engines; the code finds the listing. */
@@ -45,5 +59,10 @@ export default async function PropertyPage({ params }: PageProps<'/[locale]/prop
   const codes = similarCodes(rows, listing)
   const similar = await findByCodes(locale, codes.slice(0, 8))
 
-  return <PropertyView key={listing.id} listing={listing} similar={similar} similarTotal={codes.length} />
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(listingJsonLd(locale, listing))} />
+      <PropertyView key={listing.id} listing={listing} similar={similar} similarTotal={codes.length} />
+    </>
+  )
 }
