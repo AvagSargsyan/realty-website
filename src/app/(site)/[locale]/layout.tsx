@@ -8,7 +8,7 @@ import { NavigationProgress } from '@/components/providers/navigation-progress'
 import { SettingsProvider } from '@/components/providers/SettingsProvider'
 import { ThemeSync } from '@/components/providers/ThemeSync'
 import { ToastProvider } from '@/components/ui/toast'
-import { THEME_COLORS, THEME_SCRIPT } from '@/components/providers/preferences'
+import { THEME_COLORS, THEME_SCRIPT } from '@/lib/theme'
 import { LocaleProvider } from '@/i18n/client'
 import { isLocale, LOCALES } from '@/i18n/config'
 import { DICTS } from '@/i18n/dictionaries'
@@ -45,14 +45,15 @@ export default async function SiteLayout({ children, params }: LayoutProps<'/[lo
   return (
     // The theme script may add `dark` before React hydrates
     <html lang={locale} suppressHydrationWarning>
-      <head>
-        {/* A plain inline script (not next/script, which doesn't block paint), per Next's "Preventing flash"
-            guide. React warns in dev when the layout re-renders on a language switch; harmless, ThemeSync
-            covers that case. */}
-        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
-      </head>
+      {/* No <head> element of our own: Next fills it from the metadata. With a React-rendered <head>
+          (it held the theme script) React sometimes lost its place when it switched from <head> to
+          <body> while restarting hydration on slow networks, matched body elements to the wrong nodes
+          and threw hydration error #418 on about 1 in 5 page loads (production builds only). */}
       <body>
-        <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(agencyJsonLd(locale, settings))} />
+        {/* Theme before the first paint: a blocking inline script at the very start of <body> runs before
+            any content is drawn, so a dark theme never flashes light. React warns in dev when the layout
+            re-renders on a language switch; harmless, ThemeSync covers that case. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <LocaleProvider locale={locale}>
           <SettingsProvider value={settings}>
             <ToastProvider>
@@ -66,6 +67,8 @@ export default async function SiteLayout({ children, params }: LayoutProps<'/[lo
                   {children}
                 </main>
                 <Footer />
+                {/* Inside this <div>, not directly in <body>: see the note on <head> above */}
+                <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(agencyJsonLd(locale, settings))} />
               </div>
             </ToastProvider>
           </SettingsProvider>

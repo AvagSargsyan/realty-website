@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useLayoutEffect, useSyncExternalStore } from 'react'
+import { THEME_COLORS, THEME_STORAGE_KEY } from '@/lib/theme'
 import type { Currency, Theme } from '@/types'
 
 /**
@@ -8,11 +9,11 @@ import type { Currency, Theme } from '@/types'
  *
  * Pages stay static and cached, so the server can't know these values. useSyncExternalStore renders
  * the default on the server and during hydration, then switches to the stored value without a
- * hydration error. The theme itself never flashes: an inline script in <head> sets the `dark`
- * class before the first paint (see THEME_SCRIPT).
+ * hydration error. The theme itself never flashes: an inline script at the start of <body> sets the `dark`
+ * class before the first paint (see THEME_SCRIPT in lib/theme.ts).
  */
 
-const KEYS = { theme: 'avenue.theme', currency: 'avenue.currency', favorites: 'avenue.favorites' } as const
+const KEYS = { theme: THEME_STORAGE_KEY, currency: 'avenue.currency', favorites: 'avenue.favorites' } as const
 type Key = keyof typeof KEYS
 
 const listeners = new Set<() => void>()
@@ -135,7 +136,7 @@ export function useThemeSync(pathname: string) {
   }, [])
 
   // Switching language re-renders <html> (it is in the [locale] layout) and drops the `dark` class,
-  // while the <head> script only runs on full page loads. Re-apply the stored theme before paint
+  // while the inline theme script only runs on full page loads. Re-apply the stored theme before paint
   // after every navigation. Reads storage directly, so it agrees with the script during hydration.
   useLayoutEffect(() => {
     applyTheme(storedThemeIsDark())
@@ -147,17 +148,12 @@ function storedThemeIsDark() {
   return t === 'dark' || (t === 'system' && (window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false))
 }
 
-export const THEME_COLORS = { light: '#ffffff', dark: '#0a161b' }
-
 function applyTheme(dark: boolean) {
   document.documentElement.classList.toggle('dark', dark)
   document
     .querySelector('meta[name="theme-color"]')
     ?.setAttribute('content', dark ? THEME_COLORS.dark : THEME_COLORS.light)
 }
-
-/** Runs in <head> before the first paint, so a dark-mode visitor never sees a white flash. */
-export const THEME_SCRIPT = `try{var t=JSON.parse(localStorage.getItem("${KEYS.theme}")||'"system"');var d=t==="dark"||(t==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);if(d){document.documentElement.classList.add("dark");document.querySelector('meta[name="theme-color"]')?.setAttribute("content","${THEME_COLORS.dark}")}}catch(e){}`
 
 const noopSubscribe = () => () => {}
 
