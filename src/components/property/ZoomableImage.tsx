@@ -6,14 +6,14 @@ import { cn } from "@/lib/utils"
 export const MIN_ZOOM = 1
 export const MAX_ZOOM = 5
 const STEP = 1.6 // button / key zoom factor
-const DOUBLE = 2.5 // double-click / double-tap zoom level
+const DOUBLE = 2.5 // zoom level for a click (mouse) or double-tap (touch)
 
 export type ZoomHandle = { zoomIn: () => void; zoomOut: () => void; reset: () => void }
 type View = { s: number; x: number; y: number }
 const IDENTITY: View = { s: 1, x: 0, y: 0 }
 
 /**
- * Photo with standard zoom: pinch (touch + trackpad), Ctrl/⌘ + wheel, double-click / double-tap,
+ * Photo with standard zoom: pinch (touch + trackpad), Ctrl/⌘ + wheel, click (mouse) / double-tap (touch),
  * drag to pan when zoomed, plus an imperative handle for buttons and keys.
  * Zoom is anchored at the pointer, and panning is clamped so the photo can't be dragged off screen.
  */
@@ -30,6 +30,7 @@ export const ZoomableImage = forwardRef<
   const pinch = useRef<{ dist: number; s: number; mid: { x: number; y: number } } | null>(null)
   const swipe = useRef<{ x: number; y: number } | null>(null) // one-finger drag at normal size
   const lastTap = useRef(0)
+  const down = useRef<{ x: number; y: number } | null>(null) // where a mouse press started, to tell a click from a drag
 
   /** Keep the photo covering its box: no empty space dragged into view. */
   const clamp = useCallback((v: View): View => {
@@ -90,6 +91,7 @@ export const ZoomableImage = forwardRef<
     if (e.pointerType === "mouse" && e.button !== 0) return
     ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    down.current = e.pointerType === "mouse" ? { x: e.clientX, y: e.clientY } : null
     setGesturing(true)
     if (pointers.current.size === 2) {
       // second finger: switch from swipe to pinch
@@ -137,7 +139,14 @@ export const ZoomableImage = forwardRef<
         }
       }
     }
-    // double-tap on touch screens (mouse uses onDoubleClick)
+    // Mouse: a click (pressed and released without dragging) zooms in at that point, or back out
+    const press = down.current
+    down.current = null
+    if (e.type === "pointerup" && press && Math.hypot(e.clientX - press.x, e.clientY - press.y) < 5) {
+      toggleAt(e.clientX, e.clientY)
+      return
+    }
+    // Touch: double-tap (a single tap is too easy to trigger while swiping)
     if (e.pointerType === "touch" && pointers.current.size === 0) {
       const now = Date.now()
       if (now - lastTap.current < 300) {
@@ -159,7 +168,6 @@ export const ZoomableImage = forwardRef<
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
-      onDoubleClick={(e) => toggleAt(e.clientX, e.clientY)}
       style={{
         transform: `translate3d(${view.x}px, ${view.y}px, 0) scale(${view.s})`,
         transition: gesturing ? "none" : "transform 220ms cubic-bezier(0.22, 1, 0.36, 1)",

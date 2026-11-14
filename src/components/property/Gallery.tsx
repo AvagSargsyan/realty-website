@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react"
 import useEmblaCarousel from "embla-carousel-react"
 import { Dialog } from "radix-ui"
 import { ChevronLeft, ChevronRight, Grid2x2, RotateCcw, X, ZoomIn, ZoomOut } from "lucide-react"
@@ -9,24 +9,30 @@ import type { Photo } from "@/types"
 import { cn } from "@/lib/utils"
 import { ZoomableImage, type ZoomHandle } from "./ZoomableImage"
 
+/**
+ * The carousel's current slide, read straight from Embla. Copying it into state on "select" missed
+ * the first photo: a carousel created at startIndex never fires "select" for it, so the counter and
+ * the zoom buttons stayed on photo 1 while another photo was on screen.
+ */
 function useEmblaIndex(api: ReturnType<typeof useEmblaCarousel>[1]) {
-  const [index, setIndex] = useState(0)
-  const onSelect = useCallback(() => api && setIndex(api.selectedScrollSnap()), [api])
-  useEffect(() => {
-    if (!api) return
-    api.on("select", onSelect)
-    api.on("reInit", onSelect)
-    return () => {
-      api.off("select", onSelect)
-      api.off("reInit", onSelect)
-    }
-  }, [api, onSelect])
-  return index
+  const subscribe = useCallback(
+    (notify: () => void) => {
+      if (!api) return () => {}
+      api.on("select", notify)
+      api.on("reInit", notify)
+      return () => {
+        api.off("select", notify)
+        api.off("reInit", notify)
+      }
+    },
+    [api],
+  )
+  return useSyncExternalStore(subscribe, () => api?.selectedScrollSnap() ?? 0, () => 0)
 }
 
 /**
- * Full-screen photo viewer with zoom: pinch, Ctrl/⌘ + wheel, double-click/tap, drag to pan,
- * ＋/−/reset buttons and keys (+ − 0). Swiping and ← → change photo; Esc closes.
+ * Full-screen photo viewer with zoom: pinch, Ctrl/⌘ + wheel, click (mouse) / double-tap (touch), drag to pan,
+ * ＋/−/reset buttons and keys (+ − 0). Swiping and ← → change photo; Esc or a click beside the photo closes.
  * The carousel's own dragging is off here: ZoomableImage handles swipe so it never fights a pinch.
  */
 function Lightbox({ photos, title, open, start, onOpenChange }: { photos: Photo[]; title: string; open: boolean; start: number; onOpenChange: (o: boolean) => void }) {
@@ -61,8 +67,12 @@ function Lightbox({ photos, title, open, start, onOpenChange }: { photos: Photo[
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[80] bg-black/95 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
-        <Dialog.Content className="fixed inset-0 z-[80] flex flex-col bg-[#060a0c] outline-none" aria-describedby={undefined}>
+        {/* Fade + slight zoom on open and close (Radix keeps it mounted until the close animation ends) */}
+        <Dialog.Overlay className="fixed inset-0 z-[80] bg-black/95 duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
+        <Dialog.Content
+          className="fixed inset-0 z-[80] flex flex-col bg-[#060a0c] outline-none duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
+          aria-describedby={undefined}
+        >
           <Dialog.Title className="sr-only">{title}</Dialog.Title>
           <div className="flex items-center justify-between px-4 py-3 text-white md:px-6">
             <p className="text-sm font-medium tabular-nums" aria-live="polite">{t.property.gallery.counter(index + 1, photos.length)}</p>
@@ -86,7 +96,12 @@ function Lightbox({ photos, title, open, start, onOpenChange }: { photos: Photo[
             <div ref={ref} className="absolute inset-0 overflow-hidden">
               <div className="flex h-full">
                 {photos.map((p, i) => (
-                  <div key={p.full} className="flex h-full min-w-0 flex-[0_0_100%] items-center justify-center overflow-hidden px-2 md:px-20">
+                  // A click on the dark space around the photo closes the viewer (clicks on the photo zoom)
+                  <div
+                    key={p.full}
+                    onClick={(e) => e.target === e.currentTarget && onOpenChange(false)}
+                    className="flex h-full min-w-0 flex-[0_0_100%] items-center justify-center overflow-hidden px-2 md:px-20"
+                  >
                     <ZoomableImage
                       ref={(h) => {
                         zooms.current[i] = h
