@@ -276,6 +276,7 @@ const en = {
     terms: { title: "Terms of use", body: ["This website is a personal learning project. Its listings, prices and reviews are samples, not real offers.", "Prices in AMD and RUB are converted from US dollars for reference only."] },
   },
   notFound: { title: "Page not found", body: "The page you’re looking for doesn’t exist.", back: "Back to home" },
+  error: { title: "Something went wrong", body: "We couldn’t load this page. Please try again in a moment.", retry: "Try again", back: "Back to home" },
 }
 
 export default en
