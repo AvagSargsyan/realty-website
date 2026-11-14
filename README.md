@@ -29,6 +29,8 @@ The first visit to `/admin` asks you to create the first admin user.
 | `pnpm generate:types` | Regenerate `src/payload-types.ts` |
 | `pnpm seed` | Sample content: 12 districts, 3 agents, 300 published listings with photos (safe to re-run) |
 | `pnpm seed:staging` | The same, into the database and Blob store in `.env.staging` |
+| `pnpm seed:live` | The same, into production (`.env.live`) |
+| `ADMIN_EMAIL=… pnpm admin:create:live` | Before the first production deploy: apply migrations and create the first admin (prints a one-time password) |
 | `pnpm typecheck`, `pnpm lint` | Checks (also run in CI) |
 | `pnpm test:int` | Integration tests: roles and listing rules (needs the database; also run in CI) |
 | `pnpm payload run scripts/check-upload.ts` | Upload a test photo and print the generated sizes |
@@ -53,3 +55,9 @@ BLOB_READ_WRITE_TOKEN=   # the Public Blob store's read-write token
 ```
 
 The seed prints the database host before writing, and stops if `.env.staging` still points at this machine or has no Blob token. Photos come from Unsplash (free licence) and are processed into the Payload image sizes on your machine, then uploaded to Blob.
+
+## Production database
+
+Production scripts read `.env.live` (not `.env.production`: Next loads that file by itself for local production builds, which would point them at the real database). It holds the production `DATABASE_URL`, `BLOB_READ_WRITE_TOKEN` and `PAYLOAD_SECRET`, the same values as in Vercel's Production environment.
+
+Before the first deploy, run `ADMIN_EMAIL=you@example.com pnpm admin:create:live`. On an empty database Payload offers a public "create first user" form whose account becomes an admin; the script applies the migrations and creates your admin first, so that form never appears.
