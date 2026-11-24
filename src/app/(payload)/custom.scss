@@ -53,6 +53,12 @@ h3 {
   letter-spacing: -0.01em;
 }
 
+/* Manrope's descenders (g, y, p) reach lower than Payload's font. The document title hides overflow
+   (for its "…" on long titles), so at Payload's tight line height they were cut off. */
+h1 {
+  line-height: 1.3;
+}
+
 /* Primary buttons (Save, Publish, Create, Log in) in the site's petrol instead of near-black.
    :not(.btn--disabled): unlayered rules beat Payload's disabled style regardless of specificity. */
 .btn--style-primary:not(.btn--disabled) {

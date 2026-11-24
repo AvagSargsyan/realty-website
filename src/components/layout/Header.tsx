@@ -179,22 +179,9 @@ export function Header({ search = "" }: { search?: string }) {
               <CurrencySwitch />
               <ThemeToggle />
             </div>
+            {/* Divider: site preferences on the left, the visitor's own items and actions on the right */}
+            <span aria-hidden="true" className={cn("mx-1.5 hidden h-6 w-px lg:block", overlay ? "bg-white/25" : "bg-line")} />
             <FavoritesLink />
-            {/* Staff sign-in to the admin. Plain <a>: the admin is a separate app (its own root layout),
-                so this is a full page load anyway. Phones get a text link in the menu instead. */}
-            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-            <a
-              href="/admin"
-              rel="nofollow"
-              title={t.footer.staff}
-              className={cn(
-                "btn ml-1 hidden h-10 border px-3.5 lg:inline-flex",
-                overlay ? "border-white/40 text-white hover:bg-white/15" : "border-line text-ink hover:border-iris-ink/40 hover:bg-surface",
-              )}
-            >
-              <LogIn className="size-4" aria-hidden="true" />
-              {t.header.login}
-            </a>
             <a
               href={settings.phoneHref}
               className={cn(
@@ -204,6 +191,22 @@ export function Header({ search = "" }: { search?: string }) {
             >
               <Phone className="size-4" aria-hidden="true" />
               {settings.phone}
+            </a>
+            {/* Staff sign-in to the admin, last in the row where sites usually put "Sign in".
+                Plain <a>: the admin is a separate app (its own root layout), so this is a full page load
+                anyway. Phones get a button in the menu instead. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            <a
+              href="/admin"
+              rel="nofollow"
+              title={t.footer.staff}
+              className={cn(
+                "btn ml-2 hidden h-10 border px-3.5 lg:inline-flex",
+                overlay ? "border-white/40 text-white hover:bg-white/15" : "border-line text-ink hover:border-iris-ink/40 hover:bg-surface",
+              )}
+            >
+              <LogIn className="size-4" aria-hidden="true" />
+              {t.header.login}
             </a>
 
             <Sheet open={open} onOpenChange={setOpen}>
