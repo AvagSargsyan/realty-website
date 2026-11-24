@@ -44,8 +44,9 @@ export default buildConfig({
         Icon: '/components/admin/AdminGraphics#AdminIcon',
       },
       providers: ['/components/admin/AdminFonts#AdminFonts'],
+      actions: ['/components/admin/SiteLinks#ThemeSwitch'],
       afterNavLinks: ['/components/admin/SiteLinks#OpenSiteLink'],
-      afterLogin: ['/components/admin/SiteLinks#BackToSiteLink'],
+      afterLogin: ['/components/admin/SiteLinks#LoginExtras'],
     },
   },
   // Order = order in the admin sidebar

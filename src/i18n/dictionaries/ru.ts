@@ -30,6 +30,7 @@ const ru: Dict = {
     dark: "Тёмная",
     system: "Авто",
     toggleTheme: "Переключить светлую / тёмную тему",
+    login: "Войти",
   },
   deal: { sale: "Продажа", rent: "Аренда" },
   type: { apartment: "Квартира", house: "Дом", commercial: "Коммерческая", land: "Участок" },

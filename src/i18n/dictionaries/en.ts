@@ -21,6 +21,7 @@ const en = {
     dark: "Dark",
     system: "Auto",
     toggleTheme: "Switch light / dark mode",
+    login: "Log in",
   },
   deal: { sale: "For sale", rent: "For rent" },
   type: { apartment: "Apartment", house: "House", commercial: "Commercial", land: "Land" },

@@ -13,7 +13,8 @@ import { ParagraphFeatureClient as ParagraphFeatureClient_e70f5e05f09f93e00b997e
 import { FaqRowLabel as FaqRowLabel_52e43918ae60d17f981d6d4c1b282ff8 } from '../../../globals/FaqRowLabel'
 import { AdminIcon as AdminIcon_33c93f4499cc1046be4c39fcd5ae4edf } from '../../../components/admin/AdminGraphics'
 import { AdminLogo as AdminLogo_33c93f4499cc1046be4c39fcd5ae4edf } from '../../../components/admin/AdminGraphics'
-import { BackToSiteLink as BackToSiteLink_1854b1d73bf7de1291ec184e5bf95599 } from '../../../components/admin/SiteLinks'
+import { ThemeSwitch as ThemeSwitch_1854b1d73bf7de1291ec184e5bf95599 } from '../../../components/admin/SiteLinks'
+import { LoginExtras as LoginExtras_1854b1d73bf7de1291ec184e5bf95599 } from '../../../components/admin/SiteLinks'
 import { OpenSiteLink as OpenSiteLink_1854b1d73bf7de1291ec184e5bf95599 } from '../../../components/admin/SiteLinks'
 import { AdminFonts as AdminFonts_1a7dbd9a670a2dd0dc56d863acf43b09 } from '../../../components/admin/AdminFonts'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
@@ -36,7 +37,8 @@ export const importMap = {
   "/globals/FaqRowLabel#FaqRowLabel": FaqRowLabel_52e43918ae60d17f981d6d4c1b282ff8,
   "/components/admin/AdminGraphics#AdminIcon": AdminIcon_33c93f4499cc1046be4c39fcd5ae4edf,
   "/components/admin/AdminGraphics#AdminLogo": AdminLogo_33c93f4499cc1046be4c39fcd5ae4edf,
-  "/components/admin/SiteLinks#BackToSiteLink": BackToSiteLink_1854b1d73bf7de1291ec184e5bf95599,
+  "/components/admin/SiteLinks#ThemeSwitch": ThemeSwitch_1854b1d73bf7de1291ec184e5bf95599,
+  "/components/admin/SiteLinks#LoginExtras": LoginExtras_1854b1d73bf7de1291ec184e5bf95599,
   "/components/admin/SiteLinks#OpenSiteLink": OpenSiteLink_1854b1d73bf7de1291ec184e5bf95599,
   "/components/admin/AdminFonts#AdminFonts": AdminFonts_1a7dbd9a670a2dd0dc56d863acf43b09,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,

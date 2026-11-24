@@ -112,6 +112,40 @@ h3 {
   width: 100%;
 }
 
-.avenue-site-link--login {
-  margin-top: calc(var(--base) * 1);
+/* Login screen: back link on the left, theme switch on the right */
+.avenue-login-extras {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--base);
+}
+
+/* Theme switch (admin header and login screen), sized like Payload's header buttons */
+.avenue-theme-switch {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: var(--style-radius-m);
+  background: transparent;
+  color: var(--theme-elevation-800);
+  cursor: pointer;
+  transition: background-color 150ms, border-color 150ms;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    background: var(--theme-elevation-100);
+    border-color: var(--theme-elevation-250);
+  }
+
+  &:focus-visible {
+    outline: var(--accessibility-outline);
+    outline-offset: var(--accessibility-outline-offset);
+  }
 }

@@ -23,6 +23,7 @@ const hy: Dict = {
     dark: "Մուգ",
     system: "Ավտոմատ",
     toggleTheme: "Փոխել լուսավոր / մուգ ռեժիմը",
+    login: "Մուտք",
   },
   deal: { sale: "Վաճառք", rent: "Վարձակալություն" },
   type: { apartment: "Բնակարան", house: "Առանձնատուն", commercial: "Կոմերցիոն", land: "Հողատարածք" },

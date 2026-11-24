@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useNavigate } from "@/components/providers/navigation-progress"
-import { Heart, Menu, Phone, Search, Sparkles } from "lucide-react"
+import { Heart, LogIn, Menu, Phone, Search, Sparkles } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { Link, localizedHref, useT } from "@/i18n/client"
 import { useCurrency, useFavorites } from "@/components/providers/preferences"
@@ -180,6 +180,21 @@ export function Header({ search = "" }: { search?: string }) {
               <ThemeToggle />
             </div>
             <FavoritesLink />
+            {/* Staff sign-in to the admin. Plain <a>: the admin is a separate app (its own root layout),
+                so this is a full page load anyway. Phones get a text link in the menu instead. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            <a
+              href="/admin"
+              rel="nofollow"
+              title={t.footer.staff}
+              className={cn(
+                "btn ml-1 hidden h-10 border px-3.5 lg:inline-flex",
+                overlay ? "border-white/40 text-white hover:bg-white/15" : "border-line text-ink hover:border-iris-ink/40 hover:bg-surface",
+              )}
+            >
+              <LogIn className="size-4" aria-hidden="true" />
+              {t.header.login}
+            </a>
             <a
               href={settings.phoneHref}
               className={cn(
@@ -227,6 +242,11 @@ export function Header({ search = "" }: { search?: string }) {
                   <a href={settings.phoneHref} className="btn-primary h-11 w-full shrink-0">
                     <Phone className="size-4" aria-hidden="true" />
                     {settings.phone}
+                  </a>
+                  {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+                  <a href="/admin" rel="nofollow" className="btn h-11 w-full shrink-0 border border-line text-ink hover:border-iris-ink/40 hover:bg-surface">
+                    <LogIn className="size-4" aria-hidden="true" />
+                    {t.footer.staff}
                   </a>
                 </div>
               </SheetContent>
