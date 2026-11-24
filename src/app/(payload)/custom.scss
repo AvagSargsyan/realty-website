@@ -1,0 +1,117 @@
+/* ------------------------------------------------------------------
+   Admin theme: the public site's "Petrol & Ember" look on Payload's admin.
+   Payload draws everything from a grey ramp (--color-base-0…1000); its dark theme reads the same
+   ramp backwards. Replacing the greys with petrol-tinted ones gives both themes the site's colours:
+   light = white / mist / near-black petrol, dark = the site's night petrol surfaces.
+   Payload's own styles sit in @layer payload-default, so these unlayered rules win.
+   ------------------------------------------------------------------ */
+:root {
+  --color-base-0: #ffffff;
+  --color-base-50: #f3f6f7; /* site --surface */
+  --color-base-100: #e6edf0; /* site --surface-2 */
+  --color-base-150: #dfe7ea; /* site --line (light borders) */
+  --color-base-200: #c2cdd1;
+  --color-base-250: #b4c1c6;
+  --color-base-300: #a4b5bb;
+  --color-base-350: #96a9b0;
+  --color-base-400: #879ca4;
+  --color-base-450: #789099;
+  --color-base-500: #6b848e;
+  --color-base-550: #5f767e;
+  --color-base-600: #546870;
+  --color-base-650: #495a60;
+  --color-base-700: #3e4c52;
+  --color-base-750: #20363e; /* dark --line (dark borders) */
+  --color-base-800: #172c33; /* light text / dark --surface-2 */
+  --color-base-850: #102127; /* dark --surface */
+  --color-base-900: #0a161b; /* dark --bg */
+  --color-base-950: #061014;
+  --color-base-1000: #02080a;
+
+  --avenue-primary: #0c4a60; /* site --iris */
+  --avenue-primary-hover: #125a74;
+  --avenue-orange: #ea8435;
+
+  --font-body: 'Inter Variable', 'Noto Sans Armenian Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --avenue-font-heading: 'Manrope Variable', 'Noto Sans Armenian Variable', system-ui, sans-serif;
+
+  /* Crisp corners, like the site */
+  --style-radius-s: 3px;
+  --style-radius-m: 4px;
+  --style-radius-l: 6px;
+}
+
+html[data-theme='dark'] {
+  --avenue-primary: #13617d;
+  --avenue-primary-hover: #1a7092;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--avenue-font-heading);
+  letter-spacing: -0.01em;
+}
+
+/* Primary buttons (Save, Publish, Create, Log in) in the site's petrol instead of near-black.
+   :not(.btn--disabled): unlayered rules beat Payload's disabled style regardless of specificity. */
+.btn--style-primary:not(.btn--disabled) {
+  --bg-color: var(--avenue-primary);
+  --hover-bg: var(--avenue-primary-hover);
+  --color: #ffffff;
+  --hover-color: #ffffff;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--avenue-orange) 35%, transparent);
+}
+
+/* ---------- Branding (src/components/admin) ---------- */
+.avenue-admin-logo {
+  color: var(--theme-text);
+
+  svg {
+    display: block;
+    width: 180px;
+    height: auto;
+  }
+}
+
+.avenue-admin-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.avenue-site-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--theme-elevation-600);
+  text-decoration: none;
+  font-size: 13px;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--theme-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+/* In the sidebar: a separated row at the end of the links */
+.nav .avenue-site-link {
+  margin-top: calc(var(--base) * 0.75);
+  padding-top: calc(var(--base) * 0.75);
+  border-top: 1px solid var(--theme-elevation-100);
+  width: 100%;
+}
+
+.avenue-site-link--login {
+  margin-top: calc(var(--base) * 1);
+}

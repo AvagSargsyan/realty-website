@@ -58,6 +58,7 @@ const en = {
     terms: "Terms of use",
     rights: "All rights reserved.",
     demo: "Demo version: sample data only",
+    staff: "Staff login",
   },
   preview: {
     eyebrow: "Phase 1 preview",

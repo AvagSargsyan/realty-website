@@ -118,6 +118,10 @@ export function Footer() {
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link href="/privacy" className="link-underline hover:text-white">{t.footer.privacy}</Link>
             <Link href="/terms" className="link-underline hover:text-white">{t.footer.terms}</Link>
+            {/* Plain <a>: the admin is a separate app (its own root layout), so this is a full page load
+                anyway. nofollow: no reason for crawlers to go there. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            <a href="/admin" rel="nofollow" className="link-underline hover:text-white">{t.footer.staff}</a>
             <span className="rounded-sm border border-white/15 px-2 py-1 text-xs font-medium text-white/70">{t.footer.demo}</span>
           </div>
         </div>

@@ -34,6 +34,18 @@ export default buildConfig({
     },
     meta: {
       titleSuffix: ' · Avenue admin',
+      icons: [{ rel: 'icon', type: 'image/svg+xml', url: '/favicon.svg' }],
+    },
+    // The site's look in the admin: colours and fonts in src/app/(payload)/custom.scss,
+    // components in src/components/admin (paths are relative to src/, see importMap.baseDir)
+    components: {
+      graphics: {
+        Logo: '/components/admin/AdminGraphics#AdminLogo',
+        Icon: '/components/admin/AdminGraphics#AdminIcon',
+      },
+      providers: ['/components/admin/AdminFonts#AdminFonts'],
+      afterNavLinks: ['/components/admin/SiteLinks#OpenSiteLink'],
+      afterLogin: ['/components/admin/SiteLinks#BackToSiteLink'],
     },
   },
   // Order = order in the admin sidebar
